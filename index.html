@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer Cell Simulator — Brothers Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --card: #1a1830;
+    --card2: #211f38;
+    --accent: #e8a838;
+    --accent2: #c46b3a;
+    --good: #4caf82;
+    --warn: #e8a838;
+    --bad: #e05a5a;
+    --text: #ede8f5;
+    --muted: #8b85a8;
+    --border: #2e2a4a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 25%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 90%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 92% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 70%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(2px 2px at 60% 50%, rgba(232,168,56,0.3) 0%, transparent 100%),
+      radial-gradient(2px 2px at 15% 45%, rgba(232,168,56,0.2) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app { width: 100%; max-width: 700px; padding: 16px 12px 80px; position: relative; z-index: 1; }
+
+  /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 480px) {
+    #app { padding: 12px 10px 80px; }
+    .title-wrap { padding: 36px 0 28px; }
+    .flame { font-size: 44px; }
+    .title-wrap h1 { font-size: 28px; }
+    .title-wrap p { font-size: 14px; }
+    .tag-row { gap: 7px; }
+    .tag { font-size: 11px; padding: 4px 10px; }
+    .warning-box { font-size: 12px; padding: 12px 14px; margin-top: 18px; }
+    .btn-start { padding: 14px 32px; font-size: 15px; margin-top: 24px; }
+    .stats-bar { gap: 6px; }
+    .stat-card { padding: 9px 9px; }
+    .stat-label { font-size: 9px; letter-spacing: 0.4px; }
+    .stat-val { font-size: 10px; }
+    .week-badge { margin-bottom: 12px; }
+    .week-num { font-size: 10px; padding: 3px 9px; }
+    .week-title { font-size: 10px; }
+    .scenario-card { padding: 16px 14px; border-radius: 14px; margin-bottom: 14px; }
+    .scenario-card::before { height: 2px; }
+    .topic-tag { font-size: 10px; padding: 2px 9px; margin-bottom: 10px; }
+    .avatar { width: 36px; height: 36px; font-size: 18px; }
+    .who-name { font-size: 13px; }
+    .who-role { font-size: 11px; }
+    .scenario-text { font-size: 14px; line-height: 1.65; }
+    .scenario-context { font-size: 12px; margin-top: 6px; padding-top: 10px; }
+    .choices { gap: 8px; }
+    .choice-btn { padding: 12px 13px; border-radius: 12px; gap: 8px; }
+    .choice-letter { width: 22px; height: 22px; font-size: 11px; border-radius: 5px; }
+    .choice-text { font-size: 13px; line-height: 1.5; }
+    .outcome-panel { padding: 14px 14px; margin-top: 12px; }
+    .outcome-icon { font-size: 20px; margin-bottom: 6px; }
+    .outcome-title { font-size: 13px; margin-bottom: 5px; }
+    .outcome-text { font-size: 12px; line-height: 1.55; }
+    .bible-ref { font-size: 11px; margin-top: 8px; padding-top: 8px; }
+    .next-btn-wrap { text-align: center; margin-top: 14px; }
+    .btn-next { display: none; width: 100%; text-align: center; padding: 15px; border-radius: 14px; font-size: 15px; }
+    .btn-next.show { display: block; }
+    .progress-dots { gap: 8px; margin-bottom: 16px; }
+    .dot { width: 9px; height: 9px; }
+    .end-wrap { padding: 28px 0; }
+    .end-big { font-size: 52px; margin-bottom: 12px; }
+    .end-wrap h2 { font-size: 22px; }
+    .end-wrap p { font-size: 13px; }
+    .score-grid { gap: 8px; }
+    .score-item { padding: 14px 6px; border-radius: 12px; }
+    .score-big { font-size: 26px; }
+    .score-lbl { font-size: 9px; letter-spacing: 0.5px; }
+    .lesson-list { padding: 16px 14px; }
+    .lesson-list h3 { font-size: 14px; margin-bottom: 12px; }
+    .lesson-item { font-size: 12px; gap: 8px; margin-bottom: 9px; }
+    .btn-restart { font-size: 14px; padding: 12px 28px; }
+  }
+
+  @media (min-width: 481px) and (max-width: 600px) {
+    .scenario-card { padding: 20px 18px; }
+    .scenario-text { font-size: 15px; }
+    .choice-text { font-size: 13px; }
+    .next-btn-wrap { text-align: center; }
+    .btn-next { min-width: 180px; }
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── TITLE ── */
+  .title-wrap { text-align: center; padding: 60px 0 40px; }
+  .flame { font-size: 56px; margin-bottom: 16px; display: block; animation: flicker 2s ease-in-out infinite alternate; }
+  @keyframes flicker {
+    0% { filter: drop-shadow(0 0 8px #e8a838); transform: scale(1); }
+    100% { filter: drop-shadow(0 0 20px #c46b3a); transform: scale(1.05); }
+  }
+  .title-wrap h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 6vw, 42px); line-height: 1.15; color: var(--accent); margin-bottom: 8px; }
+  .title-wrap h1 em { font-style: italic; color: var(--text); }
+  .title-wrap p { color: var(--muted); font-size: 15px; max-width: 420px; margin: 12px auto 0; line-height: 1.6; }
+  .tag-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+  .tag { background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 5px 14px; font-size: 12px; color: var(--muted); }
+  .tag b { color: var(--accent); font-weight: 500; }
+  .warning-box {
+    background: rgba(224,90,90,0.08);
+    border: 1px solid rgba(224,90,90,0.25);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin: 24px auto 0;
+    max-width: 480px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    text-align: left;
+  }
+  .warning-box strong { color: #e87a7a; }
+
+  /* ── BUTTONS ── */
+  .btn { display: inline-block; padding: 14px 32px; border-radius: 12px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; transition: all 0.2s ease; text-align: left; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #1a1000; font-weight: 600; letter-spacing: 0.3px; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,168,56,0.35); }
+  .btn-start { margin-top: 32px; padding: 16px 48px; font-size: 16px; border-radius: 100px; display: block; margin-left: auto; margin-right: auto; }
+
+  /* ── STATS ── */
+  .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .stat-bar-wrap { height: 6px; background: var(--border); border-radius: 100px; overflow: hidden; margin-bottom: 4px; }
+  .stat-bar-fill { height: 100%; border-radius: 100px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+  .stat-val { font-size: 12px; color: var(--muted); }
+
+  /* ── WEEK BADGE ── */
+  .week-badge { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .week-num { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #1a1000; font-weight: 700; font-size: 12px; padding: 4px 12px; border-radius: 100px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .week-title { font-family: 'Playfair Display', serif; font-size: 11px; color: var(--muted); font-style: italic; }
+
+  /* topic tag on scenario */
+  .topic-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .topic-porn  { background: rgba(139,127,212,0.2); color: #b8aef0; border: 1px solid rgba(139,127,212,0.4); }
+  .topic-anger { background: rgba(224,90,90,0.15);  color: #e87a7a; border: 1px solid rgba(224,90,90,0.3); }
+  .topic-pride { background: rgba(232,168,56,0.15); color: var(--accent); border: 1px solid rgba(232,168,56,0.3); }
+  .topic-substance { background: rgba(76,175,130,0.12); color: #6dd4a8; border: 1px solid rgba(76,175,130,0.25); }
+  .topic-general { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); }
+
+  /* ── SCENARIO CARD ── */
+  .scenario-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px 26px; margin-bottom: 18px; position: relative; overflow: hidden; }
+  .scenario-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .scenario-who { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; background: var(--card2); border: 2px solid var(--border); flex-shrink: 0; }
+  .who-name { font-weight: 500; font-size: 15px; }
+  .who-role { font-size: 12px; color: var(--muted); }
+  .scenario-text { font-size: 16px; line-height: 1.7; color: var(--text); margin-bottom: 6px; }
+  .scenario-context { font-size: 13px; color: var(--muted); font-style: italic; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+  /* ── CHOICES ── */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px 18px; cursor: pointer; transition: all 0.2s ease; text-align: left; width: 100%; font-family: 'DM Sans', sans-serif; color: var(--text); display: flex; align-items: flex-start; gap: 10px; min-height: 52px; -webkit-tap-highlight-color: transparent; }
+  .choice-btn:hover { border-color: var(--accent); background: var(--card2); transform: translateX(4px); }
+  .choice-btn:active { border-color: var(--accent); background: var(--card2); transform: scale(0.98); }
+  .choice-letter { display: inline-flex; width: 24px; height: 24px; border-radius: 6px; background: var(--card2); border: 1px solid var(--border); text-align: center; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .choice-text { font-size: 14px; line-height: 1.5; }
+  .choice-btn.selected-good { border-color: var(--good); background: rgba(76,175,130,0.08); }
+  .choice-btn.selected-warn { border-color: var(--warn); background: rgba(232,168,56,0.08); }
+  .choice-btn.selected-bad  { border-color: var(--bad);  background: rgba(224,90,90,0.08); }
+
+  /* ── OUTCOME ── */
+  .outcome-panel { border-radius: 16px; padding: 20px 22px; margin-top: 14px; display: none; animation: fadeIn 0.4s ease; }
+  .outcome-panel.show { display: block; }
+  .outcome-panel.good { background: rgba(76,175,130,0.1); border: 1px solid rgba(76,175,130,0.3); }
+  .outcome-panel.warn { background: rgba(232,168,56,0.1); border: 1px solid rgba(232,168,56,0.3); }
+  .outcome-panel.bad  { background: rgba(224,90,90,0.1);  border: 1px solid rgba(224,90,90,0.3); }
+  .outcome-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+  .outcome-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .outcome-panel.good .outcome-title { color: var(--good); }
+  .outcome-panel.warn .outcome-title { color: var(--warn); }
+  .outcome-panel.bad  .outcome-title { color: var(--bad); }
+  .outcome-text { font-size: 13px; line-height: 1.6; color: var(--muted); }
+  .bible-ref { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: var(--accent); font-style: italic; }
+
+  .next-btn-wrap { margin-top: 18px; text-align: right; }
+  .btn-next { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #1a1000; font-weight: 600; font-size: 14px; padding: 14px 32px; border-radius: 100px; border: none; cursor: pointer; transition: all 0.2s; display: none; -webkit-tap-highlight-color: transparent; }
+  .btn-next.show { display: inline-block; }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,168,56,0.3); }
+
+  /* ── END SCREEN ── */
+  .end-wrap { text-align: center; padding: 40px 0; }
+  .end-big { font-size: 72px; display: block; margin-bottom: 16px; }
+  .end-wrap h2 { font-family: 'Playfair Display', serif; font-size: 30px; color: var(--accent); margin-bottom: 8px; }
+  .end-wrap p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 420px; margin: 0 auto 24px; }
+  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0; }
+  .score-item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 10px; text-align: center; }
+  .score-big { font-size: 36px; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .score-item.s-good .score-big { color: var(--good); }
+  .score-item.s-warn .score-big { color: var(--warn); }
+  .score-item.s-bad  .score-big { color: var(--bad); }
+  .score-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .lesson-list { text-align: left; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; margin-bottom: 24px; }
+  .lesson-list h3 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--accent); margin-bottom: 14px; }
+  .lesson-item { display: flex; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .lesson-item::before { content: '✦'; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .btn-restart { background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; padding: 13px 36px; border-radius: 100px; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .btn-restart:hover { background: var(--accent); color: #1a1000; transform: translateY(-2px); }
+
+  /* progress dots */
+  .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 22px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+  .dot.done { background: var(--good); }
+  .dot.active { background: var(--accent); transform: scale(1.3); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TITLE SCREEN -->
+  <div class="screen active" id="screen-title">
+    <div class="title-wrap">
+      <span class="flame">🔥</span>
+      <h1>Brothers<br><em>Prayer Cell</em></h1>
+      <p>A boys-only simulator. Real scenarios. Real struggles. No pretending. You're the shepherd — your choices shape the group.</p>
+      <div class="tag-row">
+        <div class="tag"><b>8</b> Scenarios</div>
+        <div class="tag">Addiction & Shame</div>
+        <div class="tag">Anger & Pride</div>
+        <div class="tag">Substances</div>
+        <div class="tag">Based on <b>Scripture</b></div>
+      </div>
+      <div class="warning-box">
+        <strong>Safe space notice:</strong> This simulator addresses real issues guys face — pornography, anger, substance use, and pride. These topics are included so they can be talked about honestly, not ignored. What's discussed in the room stays in the room.
+      </div>
+      <button class="btn btn-primary btn-start" onclick="startGame()">Enter the Room →</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="screen" id="screen-game">
+    <div class="progress-dots" id="progress-dots"></div>
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Brotherhood</div>
+        <div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-unity" style="background: var(--good);"></div></div>
+        <div class="stat-val" id="val-unity">70%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Shepherd Health</div>
+        <div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-shepherd" style="background: var(--accent);"></div></div>
+        <div class="stat-val" id="val-shepherd">75%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Honesty Level</div>
+        <div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-depth" style="background: #8b7fd4;"></div></div>
+        <div class="stat-val" id="val-depth">50%</div>
+      </div>
+    </div>
+
+    <div class="week-badge">
+      <span class="week-num" id="week-num">Week 1</span>
+      <span class="week-title" id="week-title"></span>
+    </div>
+
+    <div class="scenario-card">
+      <div class="topic-tag" id="sc-topic"></div>
+      <div class="scenario-who">
+        <div class="avatar" id="sc-avatar">🙏</div>
+        <div>
+          <div class="who-name" id="sc-name"></div>
+          <div class="who-role" id="sc-role"></div>
+        </div>
+      </div>
+      <div class="scenario-text" id="sc-text"></div>
+      <div class="scenario-context" id="sc-context"></div>
+    </div>
+
+    <div class="choices" id="choices-wrap"></div>
+
+    <div class="outcome-panel" id="outcome-panel">
+      <span class="outcome-icon" id="out-icon"></span>
+      <div class="outcome-title" id="out-title"></div>
+      <div class="outcome-text" id="out-text"></div>
+      <div class="bible-ref" id="out-ref"></div>
+    </div>
+
+    <div class="next-btn-wrap">
+      <button class="btn-next" id="btn-next" onclick="nextScenario()">Next →</button>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div class="screen" id="screen-end">
+    <div class="end-wrap">
+      <span class="end-big" id="end-emoji">🔥</span>
+      <h2 id="end-title"></h2>
+      <p id="end-desc"></p>
+      <div class="score-grid">
+        <div class="score-item s-good"><div class="score-big" id="end-good">0</div><div class="score-lbl">Wise</div></div>
+        <div class="score-item s-warn"><div class="score-big" id="end-warn">0</div><div class="score-lbl">Cautious</div></div>
+        <div class="score-item s-bad"><div class="score-big" id="end-bad">0</div><div class="score-lbl">Missed</div></div>
+      </div>
+      <div class="lesson-list">
+        <h3>What Scripture says about these struggles…</h3>
+        <div class="lesson-item">On sexual sin: "Flee from sexual immorality. Every other sin a person commits is outside the body, but the sexually immoral person sins against his own body." — 1 Corinthians 6:18. Fleeing means having brothers who know your struggle and hold you accountable.</div>
+        <div class="lesson-item">On anger: "Everyone should be quick to listen, slow to speak and slow to become angry, because human anger does not produce the righteousness that God desires." — James 1:19-20</div>
+        <div class="lesson-item">On pride: "God opposes the proud but shows favour to the humble." — James 4:6. The guys who pretend to have it together are the most at risk.</div>
+        <div class="lesson-item">On substance use: "Do not get drunk on wine, which leads to debauchery. Instead, be filled with the Spirit." — Ephesians 5:18. The question is always: what are you trying to fill?</div>
+        <div class="lesson-item">On confession: "Confess your sins to each other and pray for each other so that you may be healed." — James 5:16. This is what a brothers prayer cell is literally designed for.</div>
+      </div>
+      <button class="btn-restart" onclick="restartGame()">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const scenarios = [
+  {
+    week: "Week 1",
+    title: "The Confession Nobody Expected",
+    topic: "pornography", topicLabel: "Sexual Addiction",
+    avatar: "😶",
+    name: "Karthik, 19",
+    role: "College student — first term in the group",
+    text: "During open prayer time, Karthik suddenly goes quiet, then says: 'I need to say something. I've been watching pornography almost every day for two years. I've tried to stop so many times. I feel disgusting. I didn't know who else to tell.' The room goes completely silent. Everyone is staring at the floor.",
+    context: "This is the first time anyone has been this raw in the group. How you respond sets the tone for everything that follows.",
+    choices: [
+      { letter: "A", text: "Let the silence sit for a moment, then say: 'Thank you for trusting us with that. That took real courage. You're not alone, and you're not disgusting. This is exactly what this room is for.'", type: "good", icon: "🤝", title: "The response that heals", outcome: "Three other guys in the room exhale visibly. Two of them share their own struggles before the night is over. The group crosses a threshold into real brotherhood. Karthik cries — not from shame, but relief.", ref: "Confess your sins to one another and pray for one another, that you may be healed. — James 5:16" },
+      { letter: "B", text: "Pray over him immediately and move on quickly — don't let the moment become too uncomfortable.", type: "warn", icon: "⏩", title: "The fast pivot", outcome: "Karthik feels somewhat acknowledged but also slightly rushed. The other guys take the cue: real confessions get a quick prayer and we move on. Depth is capped.", ref: "Bear one another's burdens, and so fulfil the law of Christ. — Galatians 6:2" },
+      { letter: "C", text: "Tell him this might be better discussed privately with a counsellor or pastor rather than in the group.", type: "bad", icon: "🚪", title: "The redirect that shuts the door", outcome: "Karthik nods and goes quiet for the rest of the session. He doesn't come back. The group never reaches that depth again — they all understood what happened.", ref: "The prodigal son's father didn't redirect him to a counsellor. He ran to him, embraced him, and threw a party. — Luke 15:20" }
+    ],
+    effects: { good: {unity:20,shepherd:5,depth:25}, warn: {unity:5,shepherd:5,depth:-10}, bad: {unity:-20,shepherd:0,depth:-20} }
+  },
+  {
+    week: "Week 2",
+    title: "The Angry One",
+    topic: "anger", topicLabel: "Anger & Aggression",
+    avatar: "😠",
+    name: "Daniel, 22",
+    role: "Working youth — been in the group 2 years",
+    text: "Daniel explodes at another member during discussion — raises his voice, gets personal, says something cutting. The other guy shuts down. Daniel immediately looks embarrassed but says nothing. This isn't the first time. Outside the group, you've heard he's been getting into physical fights. He grew up in a home where anger was how problems got solved.",
+    context: "The group is watching how you handle this. The other member looks like he wants to leave.",
+    choices: [
+      { letter: "A", text: "Address it directly but gently, right now: 'Daniel, let's slow down. That came out hard. Can we try that again?' — don't ignore it or save it for later.", type: "good", icon: "🕊️", title: "Name it, don't avoid it", outcome: "Daniel's shoulders drop. He apologises to the other member. Later, he tells you one-on-one that nobody has ever challenged his anger without attacking him for it. A real conversation begins.", ref: "Speaking the truth in love, we will grow to become in every respect the mature body of Christ. — Ephesians 4:15" },
+      { letter: "B", text: "Let it go for now, speak to Daniel privately after the session so as not to embarrass him in front of everyone.", type: "warn", icon: "🔇", title: "The private confrontation", outcome: "Daniel hears you but the other member didn't see any accountability in the room. He stops coming. Daniel continues the pattern because the group has learned to absorb his outbursts silently.", ref: "If your brother sins against you, go and tell him his fault, between you and him alone. — Matthew 18:15. But the group also needed to see restoration." },
+      { letter: "C", text: "Carry on with the session — guys argue, it's normal, it'll cool down on its own.", type: "bad", icon: "🙈", title: "The look-away", outcome: "It doesn't cool down. The other member leaves early. Three guys are visibly uncomfortable for the rest of the session. The group learns: nobody will protect you here.", ref: "Do not let the sun go down while you are still angry, and do not give the devil a foothold. — Ephesians 4:26-27" }
+    ],
+    effects: { good: {unity:15,shepherd:5,depth:15}, warn: {unity:-5,shepherd:5,depth:0}, bad: {unity:-20,shepherd:-5,depth:-10} }
+  },
+  {
+    week: "Week 3",
+    title: "The High Guy",
+    topic: "substance", topicLabel: "Substance Use",
+    avatar: "😵",
+    name: "Rohan, 17",
+    role: "School student — youngest in the group",
+    text: "Rohan turns up to prayer cell and it's obvious something is off — slow speech, red eyes, keeps laughing at inappropriate moments. You're fairly sure he's high. He's 17. After the session, he quietly says to you: 'Sorry man. I smoked before coming. I didn't want to skip prayer cell but I'd already done it.' He looks ashamed but also a little defiant.",
+    context: "He came anyway. That means something. But this needs to be handled carefully.",
+    choices: [
+      { letter: "A", text: "Thank him for coming anyway, then have a real, non-preachy conversation: 'I'm not here to lecture you. What's going on that made you want to smoke before coming tonight?'", type: "good", icon: "❤️", title: "Curiosity over condemnation", outcome: "Rohan opens up. He's been under massive pressure at home. He came to prayer cell because it's the one place he doesn't feel judged — but he was terrified of being clean and vulnerable. You pray together. He comes back next week, sober.", ref: "Jesus said it is not the healthy who need a doctor, but the sick. — Matthew 9:12. He came. That's already something." },
+      { letter: "B", text: "Tell him it's great he came, but he needs to come sober next time — it's disrespectful to the others in the room.", type: "warn", icon: "📏", title: "The boundary with care", outcome: "Rohan nods and takes it reasonably. The boundary is fair. But the deeper question — what's driving the use — doesn't get asked. He comes back, sober, but remains guarded.", ref: "Be wise in the way you act toward outsiders; make the most of every opportunity. — Colossians 4:5" },
+      { letter: "C", text: "Tell him he shouldn't come to prayer cell in that state and he needs to sort himself out first.", type: "bad", icon: "🚫", title: "The closed door", outcome: "Rohan doesn't come back. He tells his friends the prayer cell is for people who already have it together. You've lost the most reachable moment in his life.", ref: "The lost sheep didn't find its way back by being told to figure itself out. The shepherd went after it. — Luke 15:4" }
+    ],
+    effects: { good: {unity:10,shepherd:5,depth:20}, warn: {unity:5,shepherd:5,depth:5}, bad: {unity:-15,shepherd:-5,depth:-20} }
+  },
+  {
+    week: "Week 4",
+    title: "The Alpha in the Room",
+    topic: "pride", topicLabel: "Pride & Ego",
+    avatar: "😎",
+    name: "Vijay, 21",
+    role: "Natural leader — campus popular guy",
+    text: "Vijay is gifted, confident, and the kind of guy everyone looks up to. But in prayer cell, he subtly dominates — always has the best prayer, always has the answer, subtly one-ups anyone who shares a struggle. ('Yeah that happened to me, I dealt with it like this…') Other guys have started sharing less. One told you privately: 'I feel small whenever Vijay's here.'",
+    context: "Vijay isn't malicious. He probably doesn't realise he's doing it. But it's slowly killing the group's honesty.",
+    choices: [
+      { letter: "A", text: "Have a private, honest conversation with Vijay: 'You're one of the strongest guys here. But I think the group needs you to create space more than fill it right now. Your listening might be more powerful than your speaking.'", type: "good", icon: "🪞", title: "Speaking to the man, not the behaviour", outcome: "Vijay is quiet for a moment. Then says: 'Nobody's ever said that to me.' Over the next few weeks, he visibly pulls back, asks more questions, and prays for others by name. The group opens up again.", ref: "Do nothing out of selfish ambition or vain conceit. Rather, in humility value others above yourselves. — Philippians 2:3" },
+      { letter: "B", text: "Introduce a rule for everyone: one prayer per person, no advice-giving unless asked. Don't single him out.", type: "warn", icon: "📋", title: "The structural fix", outcome: "It helps somewhat. But Vijay doesn't understand why the rule exists and feels slightly managed. He pulls back, but not in growth — in distance.", ref: "Rules without relationship lead to rebellion. — Common youth ministry wisdom" },
+      { letter: "C", text: "Do nothing — Vijay is a valuable member and confronting him risks losing him.", type: "bad", icon: "😶", title: "The avoided conversation", outcome: "Two quieter members stop sharing anything real. One stops coming. The group slowly becomes Vijay's stage. The shepherd chose comfort over the group's health.", ref: "God opposes the proud but shows favour to the humble. — James 4:6. And a shepherd who sees it and says nothing shares the responsibility." }
+    ],
+    effects: { good: {unity:15,shepherd:10,depth:20}, warn: {unity:5,shepherd:5,depth:5}, bad: {unity:-15,shepherd:-5,depth:-20} }
+  },
+  {
+    week: "Week 5",
+    title: "The Relapse",
+    topic: "pornography", topicLabel: "Sexual Addiction",
+    avatar: "😔",
+    name: "Karthik, 19",
+    role: "Same guy from Week 1 — accountability partner",
+    text: "Four weeks ago Karthik confessed his porn addiction to the group. You've been meeting with him weekly. He texted you at midnight: 'I relapsed. I don't know why I'm telling you. I feel like a failure. Maybe I should just stop trying.' You meet him the next day before the session. He looks like he hasn't slept.",
+    context: "This is a crucial moment. Shame after relapse is when most guys disappear from faith communities entirely.",
+    choices: [
+      { letter: "A", text: "Say: 'You texting me at midnight is not failure — that's you fighting. Relapse is not the end of the story. Let's figure out what triggered it and build something stronger.'", type: "good", icon: "💪", title: "Fighting, not failing", outcome: "Karthik comes to the session that evening. He shares briefly with the group what happened. Three guys gather around him and pray. He says later it was the first time he felt like his struggle was a battle, not a identity.", ref: "Though a righteous man falls seven times, he rises again. — Proverbs 24:16. The falling is not the point. The rising is." },
+      { letter: "B", text: "Reassure him and encourage him to keep trying, but don't bring it up in the group — keep it between you two.", type: "warn", icon: "🤫", title: "Private support", outcome: "Karthik appreciates the privacy. But carrying it alone means he carries the shame alone too. Progress is slower. The group misses a chance to be the community it was created to be.", ref: "Confess your sins to one another and pray for one another, that you may be healed. — James 5:16" },
+      { letter: "C", text: "Be honest with him that you're worried — maybe he needs professional help, not just prayer cell.", type: "bad", icon: "↗️", title: "The early handoff", outcome: "Karthik hears: 'You're too broken for us.' He doesn't text again. He disappears from the group. He gets the professional help eventually — but loses his community in the process.", ref: "We were made for both — professional support AND the body of Christ. One doesn't replace the other." }
+    ],
+    effects: { good: {unity:15,shepherd:5,depth:20}, warn: {unity:5,shepherd:5,depth:5}, bad: {unity:-20,shepherd:-5,depth:-15} }
+  },
+  {
+    week: "Week 6",
+    title: "The Drinking Habit",
+    topic: "substance", topicLabel: "Substance Use",
+    avatar: "🍺",
+    name: "Sam, 24",
+    role: "Working youth — been in the group 3 years",
+    text: "After a group hangout, you notice Sam drinks heavily — not occasionally, but every time the group is together socially. In prayer cell he prays beautifully and seems spiritually solid. But three guys have pulled you aside separately to ask: 'Is Sam okay? He was really drunk last Friday.' Sam himself has never brought it up.",
+    context: "He's a senior member. Everyone respects him. This is delicate.",
+    choices: [
+      { letter: "A", text: "Go to Sam privately, with care: 'Hey brother, I've noticed something and I care about you too much to not say it. Can we talk honestly about how things have been lately?'", type: "good", icon: "🫂", title: "The brave conversation", outcome: "Sam is initially defensive. Then he admits he's been under brutal work pressure and drinking is how he switches off. He didn't think anyone noticed. He's relieved someone cared enough to ask. Real accountability begins.", ref: "Wounds from a friend can be trusted. — Proverbs 27:6. Saying nothing is not kindness." },
+      { letter: "B", text: "Bring it up as a general topic in prayer cell — 'Let's talk about how we handle stress and pressure' — without naming Sam.", type: "warn", icon: "💬", title: "The indirect approach", outcome: "Sam doesn't connect the dots. The topic is good but the specific situation goes unaddressed. Three months later, his drinking is worse.", ref: "If your brother or sister sins, go and point out their fault, just between the two of you. — Matthew 18:15. Indirectness isn't the same as grace." },
+      { letter: "C", text: "Leave it — what he does outside prayer cell is his business. He's a solid member and you don't want to damage that.", type: "bad", icon: "🙈", title: "Respecting the wrong boundary", outcome: "Sam's drinking becomes a known but unspoken issue. The group's integrity erodes. He eventually distances himself — partly from shame, partly because nobody cared enough to say anything.", ref: "Do not get drunk on wine, which leads to debauchery. Instead, be filled with the Spirit. — Ephesians 5:18" }
+    ],
+    effects: { good: {unity:10,shepherd:10,depth:15}, warn: {unity:0,shepherd:0,depth:-5}, bad: {unity:-15,shepherd:-10,depth:-15} }
+  },
+  {
+    week: "Week 7",
+    title: "The Comparison Trap",
+    topic: "pride", topicLabel: "Pride & Comparison",
+    avatar: "😞",
+    name: "The Group",
+    role: "General atmosphere — it's been building for weeks",
+    text: "You've noticed the group's prayer has subtly shifted. Guys are sharing achievements more than struggles. Prayers sound more like performance reviews — 'Lord thank you that I topped my exam, got the internship, ran 10k…' A newer member said quietly to you: 'I feel like I'm not successful enough to pray here.' The room feels more like a leaderboard than a brotherhood.",
+    context: "Nobody meant for this to happen. But it did. And you need to name it.",
+    choices: [
+      { letter: "A", text: "Start the session by saying: 'I want to be honest — I've noticed our prayers have become more about what we've done than who we are. Let's reset. Tonight, only share something you're struggling with or afraid of.'", type: "good", icon: "🔄", title: "The honest reset", outcome: "Silence. Then one guy shares he failed his exams and has been lying to his parents. Then another says he's terrified he's not good enough for anything. The room becomes, for the first time in weeks, a real place.", ref: "God opposes the proud but gives grace to the humble. — 1 Peter 5:5. Vulnerability is the entry point for grace." },
+      { letter: "B", text: "Let it run its course — seasons change, maybe next week will be more authentic naturally.", type: "warn", icon: "⏳", title: "Waiting it out", outcome: "It doesn't self-correct. The newer member stops coming. Two others follow. The group drifts toward being a social club for high-achievers.", ref: "Do not conform to the pattern of this world. — Romans 12:2. Comparison is very much a pattern of this world." },
+      { letter: "C", text: "Ask the newer member to 'be more vulnerable' in sessions to model it for others.", type: "bad", icon: "😬", title: "Placing the burden on the wrong person", outcome: "The newer member feels singled out and exposed. He leaves feeling like the problem was his inability to perform, which was exactly what was wrong with the group in the first place.", ref: "The shepherd protects the weakest sheep first. — Ezekiel 34:16" }
+    ],
+    effects: { good: {unity:20,shepherd:10,depth:25}, warn: {unity:-10,shepherd:0,depth:-15}, bad: {unity:-20,shepherd:-5,depth:-20} }
+  },
+  {
+    week: "Week 8",
+    title: "Your Own Secret",
+    topic: "general", topicLabel: "The Shepherd's Struggle",
+    avatar: "🪫",
+    name: "You",
+    role: "Shepherd — Week 8",
+    text: "You've been leading this group through everyone else's struggles. But tonight, before the session, you're sitting alone in the room and you realise: you haven't been honest with anyone about what you're going through. You've been watching content you're not proud of. You've been envious of another leader's group. You've told yourself you'll deal with it 'after things settle down.' They haven't settled down. The guys are arriving in 10 minutes.",
+    context: "This is the hardest scenario. Because the shepherd has his own battle.",
+    choices: [
+      { letter: "A", text: "Open the session by being honest: 'Before we pray for each other tonight, I need to be real. I'm struggling with some things myself. I'm going to share them — not because I have it together, but because I want this to be a place where none of us has to pretend.'", type: "good", icon: "🔓", title: "The shepherd becomes a brother", outcome: "The room shifts in a way nothing else could have produced. Two guys say it's the most powerful thing they've witnessed in a leader. Accountability deepens. You leave that night lighter than you've been in months.", ref: "Therefore confess your sins to each other and pray for each other so that you may be healed. — James 5:16. The shepherd is not exempt." },
+      { letter: "B", text: "Lead the session normally, then go home and pray about your own stuff privately. Deal with it yourself first.", type: "warn", icon: "🎭", title: "Alone with it again", outcome: "Another week passes. The weight doesn't lift. The group continues — well-led on the outside, hollow on the inside for you. The isolation grows.", ref: "It is not good for man to be alone. — Genesis 2:18. This was said before sin even entered the picture." },
+      { letter: "C", text: "Push through. The group depends on you being the strong one. Your job is to hold the space for them, not burden them with your problems.", type: "bad", icon: "⚠️", title: "The crumbling foundation", outcome: "Three weeks later you cancel a session without explanation. A month after that, you step down, burned out and isolated. Nobody saw it coming — because you made sure they wouldn't.", ref: "Even Moses needed Aaron and Hur to hold his arms up. — Exodus 17:12. Strength is not always carrying it alone." }
+    ],
+    effects: { good: {unity:20,shepherd:25,depth:30}, warn: {unity:0,shepherd:-15,depth:-10}, bad: {unity:-10,shepherd:-30,depth:-20} }
+  }
+];
+
+const topicClasses = {
+  pornography: 'topic-porn',
+  anger: 'topic-anger',
+  pride: 'topic-pride',
+  substance: 'topic-substance',
+  general: 'topic-general'
+};
+
+let state = {
+  current: 0,
+  unity: 70, shepherd: 75, depth: 50,
+  good: 0, warn: 0, bad: 0,
+  answered: false
+};
+
+function clamp(v) { return Math.min(100, Math.max(0, v)); }
+
+function updateBars() {
+  const u = clamp(state.unity), s = clamp(state.shepherd), d = clamp(state.depth);
+  document.getElementById('bar-unity').style.width = u + '%';
+  document.getElementById('bar-shepherd').style.width = s + '%';
+  document.getElementById('bar-depth').style.width = d + '%';
+  document.getElementById('val-unity').textContent = u + '%';
+  document.getElementById('val-shepherd').textContent = s + '%';
+  document.getElementById('val-depth').textContent = d + '%';
+  document.getElementById('bar-unity').style.background = u > 60 ? 'var(--good)' : u > 30 ? 'var(--warn)' : 'var(--bad)';
+  document.getElementById('bar-shepherd').style.background = s > 60 ? 'var(--accent)' : s > 30 ? 'var(--warn)' : 'var(--bad)';
+  document.getElementById('bar-depth').style.background = d > 60 ? '#8b7fd4' : d > 30 ? 'var(--warn)' : 'var(--bad)';
+}
+
+function buildDots() {
+  const wrap = document.getElementById('progress-dots');
+  wrap.innerHTML = '';
+  scenarios.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === state.current ? ' active' : i < state.current ? ' done' : '');
+    wrap.appendChild(d);
+  });
+}
+
+function renderScenario() {
+  const s = scenarios[state.current];
+  document.getElementById('week-num').textContent = s.week;
+  document.getElementById('week-title').textContent = s.title;
+
+  const topicEl = document.getElementById('sc-topic');
+  topicEl.textContent = s.topicLabel;
+  topicEl.className = 'topic-tag ' + (topicClasses[s.topic] || 'topic-general');
+
+  document.getElementById('sc-avatar').textContent = s.avatar;
+  document.getElementById('sc-name').textContent = s.name;
+  document.getElementById('sc-role').textContent = s.role;
+  document.getElementById('sc-text').textContent = s.text;
+  document.getElementById('sc-context').textContent = s.context;
+
+  const wrap = document.getElementById('choices-wrap');
+  wrap.innerHTML = '';
+  s.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-letter">${c.letter}</span><span class="choice-text">${c.text}</span>`;
+    btn.onclick = () => choose(i);
+    wrap.appendChild(btn);
+  });
+
+  document.getElementById('outcome-panel').classList.remove('show', 'good', 'warn', 'bad');
+  document.getElementById('btn-next').classList.remove('show');
+  state.answered = false;
+  buildDots();
+  updateBars();
+}
+
+function choose(idx) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const s = scenarios[state.current];
+  const c = s.choices[idx];
+  const fx = s.effects[c.type];
+
+  state.unity += fx.unity;
+  state.shepherd += fx.shepherd;
+  state.depth += fx.depth;
+  if (c.type === 'good') state.good++;
+  else if (c.type === 'warn') state.warn++;
+  else state.bad++;
+
+  document.querySelectorAll('.choice-btn').forEach((btn, i) => {
+    if (i === idx) btn.classList.add('selected-' + c.type);
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = i === idx ? '1' : '0.35';
+  });
+
+  const panel = document.getElementById('outcome-panel');
+  panel.className = 'outcome-panel show ' + c.type;
+  document.getElementById('out-icon').textContent = c.icon;
+  document.getElementById('out-title').textContent = c.title;
+  document.getElementById('out-text').textContent = c.outcome;
+  document.getElementById('out-ref').textContent = c.ref;
+
+  updateBars();
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = state.current < scenarios.length - 1 ? 'Next Week →' : 'See Results →';
+  nextBtn.classList.add('show');
+}
+
+function nextScenario() {
+  state.current++;
+  if (state.current >= scenarios.length) {
+    showEnd();
+  } else {
+    renderScenario();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function showEnd() {
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-end').classList.add('active');
+
+  const u = clamp(state.unity), s = clamp(state.shepherd), d = clamp(state.depth);
+  const avg = Math.round((u + s + d) / 3);
+
+  document.getElementById('end-good').textContent = state.good;
+  document.getElementById('end-warn').textContent = state.warn;
+  document.getElementById('end-bad').textContent = state.bad;
+
+  let emoji, title, desc;
+  if (avg >= 75) {
+    emoji = '🔥'; title = 'A True Brother';
+    desc = 'Your group became what every prayer cell dreams of being — a place where men are actually honest with each other. That is rare. Guard it.';
+  } else if (avg >= 55) {
+    emoji = '🕯️'; title = 'The Faithful Shepherd';
+    desc = 'The group is real and growing. Not perfect — but the brothers trust each other. Keep building. The hard conversations are worth it.';
+  } else if (avg >= 35) {
+    emoji = '🌑'; title = 'Still in the Fight';
+    desc = 'Some things went sideways. Members drifted. But the prayer cell still exists — and that matters. Nehemiah rebuilt walls from rubble. So can you.';
+  } else {
+    emoji = '💔'; title = 'The Room Went Cold';
+    desc = 'The brotherhood didn\'t hold this time. Shame won more rounds than grace did. But the story isn\'t over. Peter denied Jesus three times and became the rock anyway.';
+  }
+
+  document.getElementById('end-emoji').textContent = emoji;
+  document.getElementById('end-title').textContent = title;
+  document.getElementById('end-desc').textContent = desc;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startGame() {
+  document.getElementById('screen-title').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  renderScenario();
+}
+
+function restartGame() {
+  state = { current: 0, unity: 70, shepherd: 75, depth: 50, good: 0, warn: 0, bad: 0, answered: false };
+  document.getElementById('screen-end').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  renderScenario();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
