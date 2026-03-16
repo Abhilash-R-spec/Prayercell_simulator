@@ -858,7 +858,7 @@ function renderScenario(){
   document.getElementById('sc-avatar').textContent=s.avatar;
   document.getElementById('sc-name').textContent  = isTa ? s.nameTa : s.name;
   document.getElementById('sc-role').textContent  = isTa ? s.roleTa : s.role;
-  document.getElementById('sc-text').textContent  = s.text;
+  document.getElementById('sc-text').textContent  = isTa ? s.textTa : s.text;
   const taTxt=document.getElementById('sc-text-ta');
   if(isBoth){ taTxt.textContent=s.textTa; taTxt.style.display='block'; }
   else { taTxt.style.display='none'; }
@@ -886,6 +886,8 @@ function renderScenario(){
 function choose(idx){
   if(state.answered) return;
   state.answered=true;
+  const isTa=lang==='ta';
+  const isBoth=lang==='both';
   const s=scenarios[state.current];
   const c=s.choices[idx];
   const fx=s.effects[c.type];
@@ -901,7 +903,6 @@ function choose(idx){
     btn.style.opacity=i===idx?'1':'0.35';
   });
 
-  const isTa=lang==='ta', isBoth=lang==='both';
   const panel=document.getElementById('outcome-panel');
   panel.className='outcome-panel show '+c.type;
   document.getElementById('out-icon').textContent=c.icon;
