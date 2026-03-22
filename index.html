@@ -372,8 +372,8 @@ function renderScenario(){
   enS.choices.forEach((enC,i)=>{
     const taC=taS.choices[i]; const c=isTa?taC:enC;
     const btn=document.createElement('button'); btn.className='choice-btn';
-    const taSpan=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:12px;color:#8b85a8;margin-top:6px;line-height:1.8;">${taC.text}</div>`:'';
-    btn.innerHTML=`<span class="choice-letter">${c.letter}</span><span class="choice-text">${c.text}${taSpan}</span>`;
+    const taSpan=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:12px;color:#8b85a8;margin-top:6px;line-height:1.8;">${taC.choiceText}</div>`:'';
+    btn.innerHTML=`<span class="choice-letter">${c.letter}</span><span class="choice-text">${c.choiceText}${taSpan}</span>`;
     btn.onclick=()=>choose(i); wrap.appendChild(btn);
   });
 
@@ -401,8 +401,8 @@ function choose(idx){
   const panel=document.getElementById('outcome-panel');
   panel.className='outcome-panel show '+enC.type;
   document.getElementById('out-icon').textContent=enC.icon;
-  document.getElementById('out-title').textContent=c.outcomeTitle;
-  document.getElementById('out-text').textContent=c.outcomeText;
+  document.getElementById('out-title').textContent=c.title;
+  document.getElementById('out-text').textContent=c.outcome;
   document.getElementById('out-ref').textContent=enC.ref;
   updateBars();
   const nb=document.getElementById('btn-next');
@@ -502,7 +502,7 @@ function generateReport(rl){
     const enSc=enData.scenarios[entry.si], taSc=taData.scenarios[entry.si];
     const enCh=enSc.choices[entry.ci], taCh=taSc.choices[entry.ci];
     const sc=isTa?taSc:enSc, ch=isTa?taCh:enCh;
-    const taCblock=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:11px;color:#6b5a8a;margin-top:4px;line-height:1.8;">${taCh.text}</div>`:'';
+    const taCblock=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:11px;color:#6b5a8a;margin-top:4px;line-height:1.8;">${taCh.choiceText}</div>`:'';
     const taAblock=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:12px;color:#6b5a8a;line-height:1.8;margin-top:6px;">${taCh.analysis}</div>`:'';
     html+=`<div class="r-scene r-${entry.type}">
       <div class="r-scene-head">
@@ -512,7 +512,7 @@ function generateReport(rl){
       </div>
       <div class="r-stitle">📍 ${sc.title}</div>
       <div class="r-clabel">${ycL}</div>
-      <div class="r-ctext">${ch.text}${taCblock}</div>
+      <div class="r-ctext">${ch.choiceText}${taCblock}</div>
       <div class="r-clabel">${anL}</div>
       <div class="r-analysis">${ch.analysis}</div>${taAblock}
       <div class="r-verse">✦ ${enCh.ref}</div>
@@ -599,9 +599,9 @@ function renderAdm(l){
           <span class="adm-ctype ${ch.type}">${ch.type}</span>
           <span class="adm-recid">ID: ${ch.choiceId}</span>
         </div>
-        <div class="adm-f"><label>Choice Text</label><textarea data-p="${l}.${si}.choices.${ci}.text">${esc(ch.text)}</textarea></div>
-        <div class="adm-f"><label>Outcome Title</label><input data-p="${l}.${si}.choices.${ci}.outcomeTitle" value="${esc(ch.outcomeTitle)}"></div>
-        <div class="adm-f"><label>Outcome Text</label><textarea data-p="${l}.${si}.choices.${ci}.outcomeText">${esc(ch.outcomeText)}</textarea></div>
+        <div class="adm-f"><label>Choice Text</label><textarea data-p="${l}.${si}.choices.${ci}.choiceText">${esc(ch.choiceText)}</textarea></div>
+        <div class="adm-f"><label>Outcome Title</label><input data-p="${l}.${si}.choices.${ci}.title" value="${esc(ch.title)}"></div>
+        <div class="adm-f"><label>Outcome Text</label><textarea data-p="${l}.${si}.choices.${ci}.outcome">${esc(ch.outcome)}</textarea></div>
         <div class="adm-f"><label>Analysis</label><textarea data-p="${l}.${si}.choices.${ci}.analysis">${esc(ch.analysis)}</textarea></div>
         ${l==='en'?`
         <div class="adm-f"><label>Scripture Ref</label><input data-p="${l}.${si}.choices.${ci}.ref" value="${esc(ch.ref)}"></div>
