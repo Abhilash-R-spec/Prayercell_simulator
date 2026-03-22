@@ -1,0 +1,407 @@
+{
+  "quizId": "prayer_cell_en",
+  "title": "Prayer Cell Simulator — Brothers Edition",
+  "language": "en",
+  "scenarios": [
+    {
+      "scenarioId": "w1",
+      "week": "Week 1",
+      "title": "The Confession Nobody Expected",
+      "topic": "pornography",
+      "topicLabel": "Sexual Addiction",
+      "avatar": "😶",
+      "name": "Karthik, 19",
+      "role": "College student — first term in the group",
+      "scenarioText": "During open prayer time, Karthik suddenly goes quiet, then says: 'I need to say something. I've been watching pornography almost every day for two years. I've tried to stop so many times. I feel disgusting. I didn't know who else to tell.' The room goes completely silent. Everyone is staring at the floor.",
+      "context": "This is the first time anyone has been this raw in the group. How you respond sets the tone for everything that follows.",
+      "choices": [
+        {
+          "choiceId": "w1c1",
+          "letter": "A",
+          "type": "good",
+          "icon": "🤝",
+          "choiceText": "Let the silence sit for a moment, then say: 'Thank you for trusting us with that. That took real courage. You're not alone, and you're not disgusting. This is exactly what this room is for.'",
+          "title": "The response that heals",
+          "outcome": "Three other guys in the room exhale visibly. Two of them share their own struggles before the night is over. The group crosses a threshold into real brotherhood.",
+          "ref": "Confess your sins to one another and pray for one another, that you may be healed. — James 5:16",
+          "analysis": "You created a safe landing for vulnerability. The first person to be honest changes what's possible for everyone who comes after. You didn't panic, moralize, or redirect — you stayed.",
+          "effects": { "unity": 20, "shepherd": 5, "depth": 25 }
+        },
+        {
+          "choiceId": "w1c2",
+          "letter": "B",
+          "type": "warn",
+          "icon": "⏩",
+          "choiceText": "Pray over him immediately and move on quickly — don't let the moment become too uncomfortable.",
+          "title": "The fast pivot",
+          "outcome": "Karthik feels somewhat acknowledged but also slightly rushed. The other guys take the cue: real confessions get a quick prayer and we move on. Depth is capped.",
+          "ref": "Bear one another's burdens, and so fulfil the law of Christ. — Galatians 6:2",
+          "analysis": "You showed up — but rushed past the moment where real healing could begin. Covering discomfort with prayer isn't the same as sitting with someone in their pain.",
+          "effects": { "unity": 5, "shepherd": 5, "depth": -10 }
+        },
+        {
+          "choiceId": "w1c3",
+          "letter": "C",
+          "type": "bad",
+          "icon": "🚪",
+          "choiceText": "Tell him this might be better discussed privately with a counsellor or pastor rather than in the group.",
+          "title": "The redirect that shuts the door",
+          "outcome": "Karthik nods and goes quiet for the rest of the session. He doesn't come back. The group never reaches that depth again.",
+          "ref": "The prodigal son's father didn't redirect him to a counsellor. He ran to him, embraced him. — Luke 15:20",
+          "analysis": "You sent him away precisely when he finally arrived. Professional support has its place — but first he needed to know the room was safe. You answered a question he didn't ask.",
+          "effects": { "unity": -20, "shepherd": 0, "depth": -20 }
+        }
+      ]
+    },
+    {
+      "scenarioId": "w2",
+      "week": "Week 2",
+      "title": "The Angry One",
+      "topic": "anger",
+      "topicLabel": "Anger & Aggression",
+      "avatar": "😠",
+      "name": "Daniel, 22",
+      "role": "Working youth — been in the group 2 years",
+      "scenarioText": "Daniel explodes at another member during discussion — raises his voice, gets personal, says something cutting. The other guy shuts down. Daniel immediately looks embarrassed but says nothing. This isn't the first time. Outside the group, you've heard he's been getting into physical fights.",
+      "context": "The group is watching how you handle this. The other member looks like he wants to leave.",
+      "choices": [
+        {
+          "choiceId": "w2c1",
+          "letter": "A",
+          "type": "good",
+          "icon": "🕊️",
+          "choiceText": "Address it directly but gently, right now: 'Daniel, let's slow down. That came out hard. Can we try that again?'",
+          "title": "Name it, don't avoid it",
+          "outcome": "Daniel's shoulders drop. He apologises to the other member. Later, he tells you nobody has ever challenged his anger without attacking him for it.",
+          "ref": "Speaking the truth in love, we will grow to become in every respect the mature body of Christ. — Ephesians 4:15",
+          "analysis": "Naming the moment without shaming the person is one of the hardest and most important pastoral skills. You modelled conflict as something that can be resolved, not just absorbed.",
+          "effects": { "unity": 15, "shepherd": 5, "depth": 15 }
+        },
+        {
+          "choiceId": "w2c2",
+          "letter": "B",
+          "type": "warn",
+          "icon": "🔇",
+          "choiceText": "Let it go for now, speak to Daniel privately after the session so as not to embarrass him in front of everyone.",
+          "title": "The private confrontation",
+          "outcome": "Daniel hears you but the other member didn't see any accountability in the room. He stops coming. Daniel continues the pattern.",
+          "ref": "If your brother sins against you, go and tell him his fault, between you and him alone. — Matthew 18:15",
+          "analysis": "Private accountability matters. But the person who was hurt needed to see restoration happen in the room where they were hurt. Grace without witness can feel like cover-up.",
+          "effects": { "unity": -5, "shepherd": 5, "depth": 0 }
+        },
+        {
+          "choiceId": "w2c3",
+          "letter": "C",
+          "type": "bad",
+          "icon": "🙈",
+          "choiceText": "Carry on with the session — guys argue, it's normal, it'll cool down on its own.",
+          "title": "The look-away",
+          "outcome": "It doesn't cool down. The other member leaves early. Three guys are visibly uncomfortable. The group learns: nobody will protect you here.",
+          "ref": "Do not let the sun go down while you are still angry. — Ephesians 4:26-27",
+          "analysis": "Avoidance communicates permission. When a shepherd looks away, the group infers that's the acceptable response. What you tolerate, you teach.",
+          "effects": { "unity": -20, "shepherd": -5, "depth": -10 }
+        }
+      ]
+    },
+    {
+      "scenarioId": "w3",
+      "week": "Week 3",
+      "title": "The High Guy",
+      "topic": "substance",
+      "topicLabel": "Substance Use",
+      "avatar": "😵",
+      "name": "Rohan, 17",
+      "role": "School student — youngest in the group",
+      "scenarioText": "Rohan turns up to prayer cell and it's obvious something is off — slow speech, red eyes, keeps laughing at inappropriate moments. You're fairly sure he's high. After the session, he quietly says: 'Sorry man. I smoked before coming. I didn't want to skip prayer cell but I'd already done it.' He looks ashamed but also a little defiant.",
+      "context": "He came anyway. That means something. But this needs to be handled carefully.",
+      "choices": [
+        {
+          "choiceId": "w3c1",
+          "letter": "A",
+          "type": "good",
+          "icon": "❤️",
+          "choiceText": "Thank him for coming anyway, then have a real conversation: 'I'm not here to lecture you. What's going on that made you want to smoke before coming tonight?'",
+          "title": "Curiosity over condemnation",
+          "outcome": "Rohan opens up about pressure at home. He came to prayer cell because it's the one place he doesn't feel judged. You pray together. He comes back next week, sober.",
+          "ref": "Jesus said it is not the healthy who need a doctor, but the sick. — Matthew 9:12",
+          "analysis": "He showed up while high — that's actually a sign of trust. By asking 'why' instead of 'how could you,' you reached the root, not just the fruit. That's where change begins.",
+          "effects": { "unity": 10, "shepherd": 5, "depth": 20 }
+        },
+        {
+          "choiceId": "w3c2",
+          "letter": "B",
+          "type": "warn",
+          "icon": "📏",
+          "choiceText": "Tell him it's great he came, but he needs to come sober next time — it's disrespectful to the others.",
+          "title": "The boundary with care",
+          "outcome": "Rohan nods and takes it reasonably. But the deeper question — what's driving the use — doesn't get asked. He comes back, sober, but remains guarded.",
+          "ref": "Be wise in the way you act toward outsiders; make the most of every opportunity. — Colossians 4:5",
+          "analysis": "Boundaries are important. But a boundary without curiosity only manages behaviour — it doesn't build a person. You kept him in the room but didn't reach him.",
+          "effects": { "unity": 5, "shepherd": 5, "depth": 5 }
+        },
+        {
+          "choiceId": "w3c3",
+          "letter": "C",
+          "type": "bad",
+          "icon": "🚫",
+          "choiceText": "Tell him he shouldn't come to prayer cell in that state and he needs to sort himself out first.",
+          "title": "The closed door",
+          "outcome": "Rohan doesn't come back. He tells his friends the prayer cell is for people who already have it together. You've lost the most reachable moment in his life.",
+          "ref": "The lost sheep didn't find its way back by being told to figure itself out. The shepherd went after it. — Luke 15:4",
+          "analysis": "You made grace conditional on worthiness. But grace that only arrives after someone is clean isn't grace — it's reward. The whole point of the gospel runs the other way.",
+          "effects": { "unity": -15, "shepherd": -5, "depth": -20 }
+        }
+      ]
+    },
+    {
+      "scenarioId": "w4",
+      "week": "Week 4",
+      "title": "The Alpha in the Room",
+      "topic": "pride",
+      "topicLabel": "Pride & Ego",
+      "avatar": "😎",
+      "name": "Vijay, 21",
+      "role": "Natural leader — campus popular guy",
+      "scenarioText": "Vijay is gifted and confident. But in prayer cell, he subtly dominates — always has the best prayer, always has the answer, subtly one-ups anyone who shares a struggle. Other guys have started sharing less. One told you privately: 'I feel small whenever Vijay's here.'",
+      "context": "Vijay isn't malicious. He doesn't realise he's doing it. But it's slowly killing the group's honesty.",
+      "choices": [
+        {
+          "choiceId": "w4c1",
+          "letter": "A",
+          "type": "good",
+          "icon": "🪞",
+          "choiceText": "Speak to Vijay privately, directly: 'You're the best student here. But your job isn't to be the best — it's to make others better. Your actions need to speak louder than your words.'",
+          "title": "The honest mirror",
+          "outcome": "Vijay is quiet for a moment. Then he says: 'Nobody's ever said that to me.' The next week, he asks questions instead of giving answers. Space opens up in the group.",
+          "ref": "Do nothing out of selfish ambition or vain conceit. Rather, in humility value others above yourselves. — Philippians 2:3",
+          "analysis": "Vijay needed someone to name the gap between his gifting and his impact. You did it without tearing him down. That's the difference between correction and critique.",
+          "effects": { "unity": 20, "shepherd": 10, "depth": 20 }
+        },
+        {
+          "choiceId": "w4c2",
+          "letter": "B",
+          "type": "warn",
+          "icon": "🔄",
+          "choiceText": "Restructure the session so everyone has a role — one leads prayer, one leads worship, one shares. Rotate weekly.",
+          "title": "The structural fix",
+          "outcome": "It helps slightly. Vijay still finds ways to dominate within his assigned slot. The symptom is managed, but the root isn't touched.",
+          "ref": "Each of you should use whatever gift you have received to serve others. — 1 Peter 4:10",
+          "analysis": "Structure can create space — but it can't change a heart. The behaviour was contained, not addressed. Vijay needs a mirror, not just a rota.",
+          "effects": { "unity": 5, "shepherd": 5, "depth": -5 }
+        },
+        {
+          "choiceId": "w4c3",
+          "letter": "C",
+          "type": "bad",
+          "icon": "🏆",
+          "choiceText": "Do nothing. Vijay is a valued member and confronting him might push him away.",
+          "title": "Protecting the asset",
+          "outcome": "Two quieter members stop sharing entirely. One stops coming. Vijay never learns. The group loses its weakest voices to protect its loudest.",
+          "ref": "Wounds from a friend can be trusted, but an enemy multiplies kisses. — Proverbs 27:6",
+          "analysis": "You protected his comfort at the cost of others' belonging. Leadership that only retains the strong eventually loses everyone else. The shepherd counts all the sheep.",
+          "effects": { "unity": -15, "shepherd": -10, "depth": -15 }
+        }
+      ]
+    },
+    {
+      "scenarioId": "w5",
+      "week": "Week 5",
+      "title": "The Relapse Text",
+      "topic": "pornography",
+      "topicLabel": "Sexual Addiction",
+      "avatar": "📱",
+      "name": "Karthik, 19",
+      "role": "College student — Week 1 confessor",
+      "scenarioText": "It's midnight. Karthik texts you: 'I fell again. I don't know why I'm telling you. I just didn't want to keep it to myself.' He shared in Week 1. You've been checking in weekly. He was doing well. This is his first relapse since. He sounds more guilty than defeated.",
+      "context": "Midnight texts from struggling guys are invitations, not inconveniences.",
+      "choices": [
+        {
+          "choiceId": "w5c1",
+          "letter": "A",
+          "type": "good",
+          "icon": "🌙",
+          "choiceText": "Text back immediately: 'Glad you told me. Falling isn't the verdict — it's part of the battle. What triggered it? Let's understand it, not just survive it.'",
+          "title": "The midnight response",
+          "outcome": "Karthik replies for an hour. He identifies the trigger — loneliness after a hard day. You pray together over text. He says it's the first time a relapse didn't make him want to disappear.",
+          "ref": "Though a righteous man falls seven times, he rises again. — Proverbs 24:16",
+          "analysis": "Midnight texts from struggling guys are invitations, not inconveniences. The way you framed relapse — as a battle, not a verdict — reframed his entire identity in that moment.",
+          "effects": { "unity": 15, "shepherd": 5, "depth": 20 }
+        },
+        {
+          "choiceId": "w5c2",
+          "letter": "B",
+          "type": "warn",
+          "icon": "🤫",
+          "choiceText": "Reassure him and encourage him to keep trying, but don't bring it up in the group — keep it between you two.",
+          "title": "Private support",
+          "outcome": "Karthik appreciates the privacy. But carrying it alone means he carries the shame alone too. Progress is slower. The group misses a chance to be the community it was created to be.",
+          "ref": "Confess your sins to one another and pray for one another, that you may be healed. — James 5:16",
+          "analysis": "Privacy protected him from embarrassment. But James 5:16 says healing happens in community — not just between two people. You were a good friend. Could you have been a great shepherd?",
+          "effects": { "unity": 5, "shepherd": 5, "depth": 5 }
+        },
+        {
+          "choiceId": "w5c3",
+          "letter": "C",
+          "type": "bad",
+          "icon": "↗️",
+          "choiceText": "Be honest with him that you're worried — maybe he needs professional help, not just prayer cell.",
+          "title": "The early handoff",
+          "outcome": "Karthik hears: 'You're too broken for us.' He doesn't text again. He disappears from the group. He gets professional help eventually — but loses his community in the process.",
+          "ref": "We were made for both — professional support AND the body of Christ. One doesn't replace the other.",
+          "analysis": "Professional help is good and necessary. But timing matters. At midnight, in crisis, after a relapse — what he needed first was to know you weren't leaving. You left.",
+          "effects": { "unity": -20, "shepherd": -5, "depth": -15 }
+        }
+      ]
+    },
+    {
+      "scenarioId": "w6",
+      "week": "Week 6",
+      "title": "The Drinking Habit",
+      "topic": "substance",
+      "topicLabel": "Substance Use",
+      "avatar": "🍺",
+      "name": "Sam, 24",
+      "role": "Working youth — been in the group 3 years",
+      "scenarioText": "After a group hangout, you notice Sam drinks heavily — not occasionally, but every time the group is together socially. In prayer cell he prays beautifully and seems spiritually solid. But three guys have pulled you aside separately to ask: 'Is Sam okay?' Sam himself has never brought it up.",
+      "context": "He's a senior member. Everyone respects him. This is delicate.",
+      "choices": [
+        {
+          "choiceId": "w6c1",
+          "letter": "A",
+          "type": "good",
+          "icon": "🫂",
+          "choiceText": "Go to Sam privately, with care: 'Hey brother, I've noticed something and I care about you too much to not say it. Can we talk honestly about how things have been lately?'",
+          "title": "The brave conversation",
+          "outcome": "Sam is initially defensive. Then he admits he's been under brutal work pressure and drinking is how he switches off. He didn't think anyone noticed. He's relieved someone cared enough to ask.",
+          "ref": "Wounds from a friend can be trusted. — Proverbs 27:6",
+          "analysis": "You chose the friendship of truth over the friendship of comfort. That's the harder and more loving choice. Three guys were worried. None of them did what you did.",
+          "effects": { "unity": 10, "shepherd": 10, "depth": 15 }
+        },
+        {
+          "choiceId": "w6c2",
+          "letter": "B",
+          "type": "warn",
+          "icon": "💬",
+          "choiceText": "Bring it up as a general topic in prayer cell — 'Let's talk about how we handle stress' — without naming Sam.",
+          "title": "The indirect approach",
+          "outcome": "Sam doesn't connect the dots. The topic is good but the specific situation goes unaddressed. Three months later, his drinking is worse.",
+          "ref": "If your brother or sister sins, go and point out their fault, just between the two of you. — Matthew 18:15",
+          "analysis": "Indirect correction is often a way of doing something without risking anything. The topic reached the room but not the person. Sam deserved to be spoken to directly.",
+          "effects": { "unity": 0, "shepherd": 0, "depth": -5 }
+        },
+        {
+          "choiceId": "w6c3",
+          "letter": "C",
+          "type": "bad",
+          "icon": "🙈",
+          "choiceText": "Leave it — what he does outside prayer cell is his business. He's a solid member and you don't want to damage that.",
+          "title": "Respecting the wrong boundary",
+          "outcome": "Sam's drinking becomes a known but unspoken issue. The group's integrity erodes. He eventually distances himself — partly from shame, partly because nobody cared enough to say anything.",
+          "ref": "Do not get drunk on wine, which leads to debauchery. Instead, be filled with the Spirit. — Ephesians 5:18",
+          "analysis": "Silence is never neutral. In a community of accountability, silence about a known struggle becomes complicity. The loving thing and the easy thing were different things here.",
+          "effects": { "unity": -15, "shepherd": -10, "depth": -15 }
+        }
+      ]
+    },
+    {
+      "scenarioId": "w7",
+      "week": "Week 7",
+      "title": "The Comparison Trap",
+      "topic": "pride",
+      "topicLabel": "Pride & Comparison",
+      "avatar": "😞",
+      "name": "The Group",
+      "role": "General atmosphere — it's been building for weeks",
+      "scenarioText": "You've noticed the group's prayer has subtly shifted. Guys are sharing achievements more than struggles. Prayers sound like performance reviews. A newer member said quietly: 'I feel like I'm not successful enough to pray here.' The room feels more like a leaderboard than a brotherhood.",
+      "context": "Nobody meant for this to happen. But it did. And you need to name it.",
+      "choices": [
+        {
+          "choiceId": "w7c1",
+          "letter": "A",
+          "type": "good",
+          "icon": "🔄",
+          "choiceText": "Start the session by saying: 'I want to be honest — I've noticed our prayers have become more about what we've done than who we are. Tonight, only share something you're struggling with or afraid of.'",
+          "title": "The honest reset",
+          "outcome": "Silence. Then one guy shares he failed his exams and has been lying to his parents. Then another says he's terrified he's not good enough for anything. The room becomes, for the first time in weeks, a real place.",
+          "ref": "God opposes the proud but gives grace to the humble. — 1 Peter 5:5",
+          "analysis": "You named the drift before it became the culture. That took courage — especially when you yourself may have enjoyed the group's positive energy. Prophetic leadership is often inconvenient.",
+          "effects": { "unity": 20, "shepherd": 10, "depth": 25 }
+        },
+        {
+          "choiceId": "w7c2",
+          "letter": "B",
+          "type": "warn",
+          "icon": "⏳",
+          "choiceText": "Let it run its course — seasons change, maybe next week will be more authentic naturally.",
+          "title": "Waiting it out",
+          "outcome": "It doesn't self-correct. The newer member stops coming. Two others follow. The group drifts toward being a social club for high-achievers.",
+          "ref": "Do not conform to the pattern of this world. — Romans 12:2",
+          "analysis": "Culture doesn't drift back to health on its own. It drifts further from it. The shepherd's job is to notice drift early and name it — not wait for it to self-correct.",
+          "effects": { "unity": -10, "shepherd": 0, "depth": -15 }
+        },
+        {
+          "choiceId": "w7c3",
+          "letter": "C",
+          "type": "bad",
+          "icon": "😬",
+          "choiceText": "Ask the newer member to 'be more vulnerable' in sessions to model it for others.",
+          "title": "Placing the burden on the wrong person",
+          "outcome": "The newer member feels singled out and exposed. He leaves feeling the problem was his inability to perform — which was exactly what was wrong with the group in the first place.",
+          "ref": "The shepherd protects the weakest sheep first. — Ezekiel 34:16",
+          "analysis": "You asked the most vulnerable person to fix a problem created by the least vulnerable. That's the opposite of pastoral care. The weakest sheep doesn't carry the flock.",
+          "effects": { "unity": -20, "shepherd": -5, "depth": -20 }
+        }
+      ]
+    },
+    {
+      "scenarioId": "w8",
+      "week": "Week 8",
+      "title": "Your Own Secret",
+      "topic": "general",
+      "topicLabel": "The Shepherd's Struggle",
+      "avatar": "🪫",
+      "name": "You",
+      "role": "Shepherd — Week 8",
+      "scenarioText": "You've been leading through everyone else's struggles. But tonight, before the session, you're sitting alone and you realise: you haven't been honest with anyone about what you're going through. You've been watching content you're not proud of. You've been envious of another leader's group. You've told yourself you'll deal with it 'after things settle down.' They haven't.",
+      "context": "This is the hardest scenario. Because the shepherd has his own battle.",
+      "choices": [
+        {
+          "choiceId": "w8c1",
+          "letter": "A",
+          "type": "good",
+          "icon": "🔓",
+          "choiceText": "Open the session by being honest: 'Before we pray for each other tonight, I need to be real. I'm struggling with some things myself. I'm going to share them — not because I have it together, but because I want this to be a place where none of us has to pretend.'",
+          "title": "The shepherd becomes a brother",
+          "outcome": "The room shifts in a way nothing else could have produced. Two guys say it's the most powerful thing they've witnessed in a leader. You leave that night lighter than you've been in months.",
+          "ref": "Therefore confess your sins to each other and pray for each other so that you may be healed. — James 5:16",
+          "analysis": "The shepherd who can be vulnerable destroys the illusion that you need to be fixed before you can belong. That single act of honesty gave every person in the room permission to be human.",
+          "effects": { "unity": 25, "shepherd": 15, "depth": 25 }
+        },
+        {
+          "choiceId": "w8c2",
+          "letter": "B",
+          "type": "warn",
+          "icon": "🏠",
+          "choiceText": "Lead the session normally, then go home and pray about your own stuff privately. Deal with it yourself first.",
+          "title": "The private shepherd",
+          "outcome": "You lead well on the outside. But internally you're more isolated than before. The distance between your public role and private reality grows. The weight becomes harder to carry.",
+          "ref": "Carry each other's burdens, and in this way you will fulfil the law of Christ. — Galatians 6:2",
+          "analysis": "There is a version of shepherding that never lets anyone close enough to shepherd you. It looks like strength. It is loneliness. And it doesn't end well.",
+          "effects": { "unity": 0, "shepherd": -5, "depth": -5 }
+        },
+        {
+          "choiceId": "w8c3",
+          "letter": "C",
+          "type": "bad",
+          "icon": "😶",
+          "choiceText": "Push through it. The group is depending on you. Your issues can wait — they need a strong shepherd tonight.",
+          "title": "The mask stays on",
+          "outcome": "You get through the session. Nobody notices. But you're further from them than you've ever been. The group is led by a performance, not a person.",
+          "ref": "Do not push the flock harshly. — Ezekiel 34:4",
+          "analysis": "A shepherd who only leads from strength teaches his flock that weakness is shameful. You don't just lead their theology — you lead their permission to be human.",
+          "effects": { "unity": -10, "shepherd": -15, "depth": -20 }
+        }
+      ]
+    }
+  ]
+}
