@@ -6,1116 +6,670 @@
 <title>Prayer Cell Simulator — Brothers Edition</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=Noto+Serif+Tamil:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#0f0e17;--card:#1a1830;--card2:#211f38;
-    --accent:#e8a838;--accent2:#c46b3a;
-    --good:#4caf82;--warn:#e8a838;--bad:#e05a5a;
-    --text:#ede8f5;--muted:#8b85a8;--border:#2e2a4a;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0;overflow-x:hidden;}
-  body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,0.4) 0%,transparent 100%),radial-gradient(1px 1px at 30% 60%,rgba(255,255,255,0.3) 0%,transparent 100%),radial-gradient(1px 1px at 55% 25%,rgba(255,255,255,0.5) 0%,transparent 100%),radial-gradient(1px 1px at 70% 80%,rgba(255,255,255,0.2) 0%,transparent 100%),radial-gradient(1px 1px at 85% 40%,rgba(255,255,255,0.4) 0%,transparent 100%),radial-gradient(2px 2px at 60% 50%,rgba(232,168,56,0.3) 0%,transparent 100%);pointer-events:none;z-index:0;}
-  #app{width:100%;max-width:700px;padding:16px 12px 80px;position:relative;z-index:1;}
-
-  /* Tamil font helper */
-  .ta{font-family:'Noto Serif Tamil',serif;}
-
-  /* SCREENS */
-  .screen{display:none;}
-  .screen.active{display:block;animation:fadeIn 0.5s ease;}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-
-  /* TITLE */
-  .title-wrap{text-align:center;padding:52px 0 36px;}
-  .flame{font-size:56px;margin-bottom:16px;display:block;animation:flicker 2s ease-in-out infinite alternate;}
-  @keyframes flicker{0%{filter:drop-shadow(0 0 8px #e8a838);transform:scale(1);}100%{filter:drop-shadow(0 0 20px #c46b3a);transform:scale(1.05);}}
-  .title-wrap h1{font-family:'Playfair Display',serif;font-size:clamp(26px,6vw,42px);line-height:1.15;color:var(--accent);margin-bottom:6px;}
-  .title-wrap h1 em{font-style:italic;color:var(--text);}
-  .title-ta{font-family:'Noto Serif Tamil',serif;font-size:clamp(16px,4vw,22px);color:#c9a84c;margin-bottom:10px;line-height:1.4;}
-  .title-wrap p{color:var(--muted);font-size:15px;max-width:420px;margin:10px auto 0;line-height:1.6;}
-  .title-sub-ta{font-family:'Noto Serif Tamil',serif;font-size:13px;color:#6b5a8a;max-width:400px;margin:6px auto 0;line-height:1.7;}
-  .tag-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
-  .tag{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--muted);}
-  .tag b{color:var(--accent);font-weight:500;}
-  .warning-box{background:rgba(224,90,90,0.08);border:1px solid rgba(224,90,90,0.25);border-radius:14px;padding:14px 18px;margin:22px auto 0;max-width:480px;font-size:13px;color:var(--muted);line-height:1.6;text-align:left;}
-  .warning-box strong{color:#e87a7a;}
-
-  /* LANG PICK on splash */
-  .lang-pick{display:flex;gap:14px;justify-content:center;margin:28px 0 10px;}
-  .lang-opt{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:16px 28px;cursor:pointer;text-align:center;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-  .lang-opt:hover,.lang-opt.sel{border-color:var(--accent);background:rgba(232,168,56,0.1);}
-  .lang-opt .lo-icon{font-size:28px;display:block;margin-bottom:6px;}
-  .lang-opt .lo-label{font-size:13px;font-weight:600;color:var(--accent);}
-  .lang-opt .lo-sub{font-size:11px;color:var(--muted);margin-top:3px;}
-
-  /* BTN */
-  .btn{display:inline-block;padding:14px 32px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;transition:all 0.2s ease;}
-  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;font-weight:600;letter-spacing:0.3px;}
-  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,168,56,0.35);}
-  .btn-start{margin-top:10px;padding:16px 48px;font-size:16px;border-radius:100px;display:block;margin-left:auto;margin-right:auto;}
-
-  /* STATS */
-  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
-  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
-  .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
-  .stat-bar-wrap{height:6px;background:var(--border);border-radius:100px;overflow:hidden;margin-bottom:4px;}
-  .stat-bar-fill{height:100%;border-radius:100px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);}
-  .stat-val{font-size:12px;color:var(--muted);}
-
-  /* WEEK */
-  .week-badge{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-  .week-num{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;font-weight:700;font-size:12px;padding:4px 12px;border-radius:100px;letter-spacing:0.5px;text-transform:uppercase;}
-  .week-title{font-family:'Playfair Display',serif;font-size:11px;color:var(--muted);font-style:italic;}
-
-  /* TOPIC TAG */
-  .topic-tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:14px;}
-  .topic-porn{background:rgba(139,127,212,0.2);color:#b8aef0;border:1px solid rgba(139,127,212,0.4);}
-  .topic-anger{background:rgba(224,90,90,0.15);color:#e87a7a;border:1px solid rgba(224,90,90,0.3);}
-  .topic-pride{background:rgba(232,168,56,0.15);color:var(--accent);border:1px solid rgba(232,168,56,0.3);}
-  .topic-substance{background:rgba(76,175,130,0.12);color:#6dd4a8;border:1px solid rgba(76,175,130,0.25);}
-  .topic-general{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border);}
-
-  /* SCENARIO */
-  .scenario-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 26px;margin-bottom:18px;position:relative;overflow:hidden;}
-  .scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
-  .scenario-who{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-  .avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--card2);border:2px solid var(--border);flex-shrink:0;}
-  .who-name{font-weight:500;font-size:15px;}
-  .who-role{font-size:12px;color:var(--muted);}
-  .scenario-text{font-size:16px;line-height:1.7;color:var(--text);margin-bottom:6px;}
-  .scenario-text-ta{font-family:'Noto Serif Tamil',serif;font-size:14px;line-height:1.85;color:#c8c0e0;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-  .scenario-context{font-size:13px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:12px;border-top:1px solid var(--border);}
-
-  /* CHOICES */
-  .choices{display:flex;flex-direction:column;gap:10px;}
-  .choice-btn{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;cursor:pointer;transition:all 0.2s ease;text-align:left;width:100%;font-family:'DM Sans',sans-serif;color:var(--text);display:flex;align-items:flex-start;gap:10px;min-height:52px;-webkit-tap-highlight-color:transparent;}
-  .choice-btn:hover{border-color:var(--accent);background:var(--card2);transform:translateX(4px);}
-  .choice-btn:active{transform:scale(0.98);}
-  .choice-letter{display:inline-flex;width:24px;height:24px;border-radius:6px;background:var(--card2);border:1px solid var(--border);align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--accent);flex-shrink:0;margin-top:1px;}
-  .choice-text{font-size:14px;line-height:1.5;}
-  .choice-btn.selected-good{border-color:var(--good);background:rgba(76,175,130,0.08);}
-  .choice-btn.selected-warn{border-color:var(--warn);background:rgba(232,168,56,0.08);}
-  .choice-btn.selected-bad{border-color:var(--bad);background:rgba(224,90,90,0.08);}
-
-  /* OUTCOME */
-  .outcome-panel{border-radius:16px;padding:20px 22px;margin-top:14px;display:none;animation:fadeIn 0.4s ease;}
-  .outcome-panel.show{display:block;}
-  .outcome-panel.good{background:rgba(76,175,130,0.1);border:1px solid rgba(76,175,130,0.3);}
-  .outcome-panel.warn{background:rgba(232,168,56,0.1);border:1px solid rgba(232,168,56,0.3);}
-  .outcome-panel.bad{background:rgba(224,90,90,0.1);border:1px solid rgba(224,90,90,0.3);}
-  .outcome-icon{font-size:24px;margin-bottom:8px;display:block;}
-  .outcome-title{font-weight:600;font-size:15px;margin-bottom:6px;}
-  .outcome-panel.good .outcome-title{color:var(--good);}
-  .outcome-panel.warn .outcome-title{color:var(--warn);}
-  .outcome-panel.bad .outcome-title{color:var(--bad);}
-  .outcome-text{font-size:13px;line-height:1.6;color:var(--muted);}
-  .outcome-text-ta{font-family:'Noto Serif Tamil',serif;font-size:12px;line-height:1.75;color:#8b85a8;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);}
-  .bible-ref{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);font-size:12px;color:var(--accent);font-style:italic;}
-
-  .next-btn-wrap{margin-top:18px;text-align:right;}
-  .btn-next{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;font-weight:600;font-size:14px;padding:14px 32px;border-radius:100px;border:none;cursor:pointer;transition:all 0.2s;display:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-  .btn-next.show{display:inline-block;}
-  @media(max-width:480px){.btn-next.show{display:block;width:100%;text-align:center;}}
-
-  /* PROGRESS */
-  .progress-dots{display:flex;gap:6px;justify-content:center;margin-bottom:22px;}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all 0.3s;}
-  .dot.done{background:var(--good);}
-  .dot.active{background:var(--accent);transform:scale(1.3);}
-
-  /* END SCREEN */
-  .end-wrap{text-align:center;padding:40px 0;}
-  .end-big{font-size:72px;display:block;margin-bottom:16px;}
-  .end-wrap h2{font-family:'Playfair Display',serif;font-size:28px;color:var(--accent);margin-bottom:8px;}
-  .end-wrap p{color:var(--muted);font-size:15px;line-height:1.6;max-width:420px;margin:0 auto 20px;}
-  .score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0;}
-  .score-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 10px;text-align:center;}
-  .score-big{font-size:36px;font-weight:700;font-family:'Playfair Display',serif;}
-  .score-item.s-good .score-big{color:var(--good);}
-  .score-item.s-warn .score-big{color:var(--warn);}
-  .score-item.s-bad .score-big{color:var(--bad);}
-  .score-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
-
-  /* REPORT LANG CHOICE */
-  .report-lang-section{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px 20px;margin:20px 0;text-align:center;}
-  .report-lang-section h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent);margin-bottom:6px;}
-  .report-lang-section p{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
-  .report-lang-section .ta{display:block;font-size:12px;color:#6b5a8a;margin-bottom:16px;}
-  .report-lang-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-  .report-lang-btn{padding:12px 28px;border-radius:100px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
-  .report-lang-btn:hover{background:var(--accent);color:#1a1000;}
-
-  .btn-restart{background:transparent;border:1.5px solid var(--accent);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;padding:13px 36px;border-radius:100px;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;margin-top:12px;}
-  .btn-restart:hover{background:var(--accent);color:#1a1000;}
-
-  /* REPORT SCREEN */
-  #screen-report{background:var(--bg);}
-  .report-header{background:linear-gradient(135deg,#1a1830,#211f38);border-bottom:2px solid var(--accent);padding:20px 18px;position:sticky;top:0;z-index:10;}
-  .report-back{background:none;border:none;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;padding:4px 0;-webkit-tap-highlight-color:transparent;}
-  .report-back::before{content:'←';font-size:16px;}
-  .report-title{font-family:'Playfair Display',serif;font-size:clamp(18px,4.5vw,26px);color:var(--accent);font-weight:700;}
-  .report-subtitle{font-size:12px;color:var(--muted);margin-top:4px;}
-  .report-body{padding:20px 16px 60px;}
-
-  /* summary banner */
-  .report-summary{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;}
-  .report-summary-icon{font-size:48px;flex-shrink:0;}
-  .report-summary-text h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent);margin-bottom:4px;}
-  .report-summary-text p{font-size:13px;color:var(--muted);line-height:1.6;}
-
-  /* score pills */
-  .report-scores{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
-  .rscore{flex:1;min-width:80px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center;}
-  .rscore-num{font-size:28px;font-weight:700;font-family:'Playfair Display',serif;}
-  .rscore.rg .rscore-num{color:var(--good);}
-  .rscore.rw .rscore-num{color:var(--warn);}
-  .rscore.rb .rscore-num{color:var(--bad);}
-  .rscore-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
-
-  /* each scenario review */
-  .r-scene{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden;}
-  .r-scene::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;}
-  .r-scene.r-good::before{background:var(--good);}
-  .r-scene.r-warn::before{background:var(--warn);}
-  .r-scene.r-bad::before{background:var(--bad);}
-  .r-scene-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-  .r-week-pill{font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:0.5px;background:rgba(232,168,56,0.15);color:var(--accent);border:1px solid rgba(232,168,56,0.3);}
-  .r-topic-pill{font-size:10px;padding:2px 9px;border-radius:100px;color:var(--muted);background:rgba(255,255,255,0.05);border:1px solid var(--border);}
-  .r-result-badge{margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;}
-  .r-good .r-result-badge{background:rgba(76,175,130,0.2);color:var(--good);border:1px solid rgba(76,175,130,0.3);}
-  .r-warn .r-result-badge{background:rgba(232,168,56,0.2);color:var(--warn);border:1px solid rgba(232,168,56,0.3);}
-  .r-bad .r-result-badge{background:rgba(224,90,90,0.2);color:var(--bad);border:1px solid rgba(224,90,90,0.3);}
-  .r-scene-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--text);margin-bottom:8px;}
-  .r-choice-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
-  .r-choice-text{font-size:13px;color:var(--text);line-height:1.5;background:rgba(255,255,255,0.03);border-radius:8px;padding:8px 10px;border:1px solid var(--border);margin-bottom:10px;}
-  .r-analysis{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:6px;}
-  .r-analysis-ta{font-family:'Noto Serif Tamil',serif;font-size:12px;color:#6b5a8a;line-height:1.75;margin-bottom:6px;}
-  .r-verse{font-size:12px;color:var(--accent);font-style:italic;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);}
-
-  /* strengths / growth section */
-  .r-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}
-  .r-section h3{font-family:'Playfair Display',serif;font-size:15px;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-  .r-point{display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:10px;}
-  .r-point::before{content:'✦';color:var(--accent);flex-shrink:0;margin-top:1px;}
-  .r-point-ta{font-family:'Noto Serif Tamil',serif;font-size:12px;color:#6b5a8a;line-height:1.75;margin-bottom:10px;margin-left:20px;}
-
-  /* print btn */
-  .report-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
-  .rpt-btn{flex:1;min-width:120px;padding:13px 20px;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
-  .rpt-btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;}
-  .rpt-btn-ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);}
-
-  @media(max-width:480px){
-    .lang-pick{flex-direction:column;align-items:center;}
-    .lang-opt{width:220px;}
-    .report-summary{flex-direction:column;text-align:center;}
-    .report-scores{gap:8px;}
-    .rscore-num{font-size:22px;}
-  }
+:root{--bg:#0f0e17;--card:#1a1830;--card2:#211f38;--accent:#e8a838;--accent2:#c46b3a;--good:#4caf82;--warn:#e8a838;--bad:#e05a5a;--text:#ede8f5;--muted:#8b85a8;--border:#2e2a4a;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,0.4) 0%,transparent 100%),radial-gradient(1px 1px at 30% 60%,rgba(255,255,255,0.3) 0%,transparent 100%),radial-gradient(1px 1px at 55% 25%,rgba(255,255,255,0.5) 0%,transparent 100%),radial-gradient(1px 1px at 70% 80%,rgba(255,255,255,0.2) 0%,transparent 100%),radial-gradient(1px 1px at 85% 40%,rgba(255,255,255,0.4) 0%,transparent 100%);pointer-events:none;z-index:0;}
+#app{width:100%;max-width:700px;padding:16px 12px 80px;position:relative;z-index:1;}
+.screen{display:none;}.screen.active{display:block;animation:fadeIn 0.5s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+/* TITLE */
+.title-wrap{text-align:center;padding:52px 0 36px;}
+.flame{font-size:56px;margin-bottom:16px;display:block;animation:flicker 2s ease-in-out infinite alternate;}
+@keyframes flicker{0%{filter:drop-shadow(0 0 8px #e8a838);transform:scale(1);}100%{filter:drop-shadow(0 0 20px #c46b3a);transform:scale(1.05);}}
+.title-wrap h1{font-family:'Playfair Display',serif;font-size:clamp(26px,6vw,42px);line-height:1.15;color:var(--accent);margin-bottom:6px;}
+.title-wrap h1 em{font-style:italic;color:var(--text);}
+.title-ta{font-family:'Noto Serif Tamil',serif;font-size:clamp(15px,4vw,21px);color:#c9a84c;margin-bottom:10px;line-height:1.5;}
+.title-wrap>p{color:var(--muted);font-size:15px;max-width:420px;margin:10px auto 0;line-height:1.6;}
+.title-sub-ta{font-family:'Noto Serif Tamil',serif;font-size:13px;color:#6b5a8a;max-width:400px;margin:6px auto 0;line-height:1.7;}
+.tag-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+.tag{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--muted);}
+.tag b{color:var(--accent);}
+.warning-box{background:rgba(224,90,90,0.08);border:1px solid rgba(224,90,90,0.25);border-radius:14px;padding:14px 18px;margin:22px auto 0;max-width:480px;font-size:13px;color:var(--muted);line-height:1.6;text-align:left;}
+.warning-box strong{color:#e87a7a;}
+.lang-pick{display:flex;gap:14px;justify-content:center;margin:28px 0 10px;flex-wrap:wrap;}
+.lang-opt{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:16px 24px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.lang-opt:hover,.lang-opt.sel{border-color:var(--accent);background:rgba(232,168,56,0.1);}
+.lo-icon{font-size:28px;display:block;margin-bottom:6px;}
+.lo-label{font-size:13px;font-weight:600;color:var(--accent);}
+.lo-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;font-weight:600;padding:14px 32px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;transition:all 0.2s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,168,56,0.35);}
+.btn-start{margin-top:14px;padding:16px 48px;font-size:16px;border-radius:100px;display:block;margin-left:auto;margin-right:auto;}
+/* GAME */
+.progress-dots{display:flex;gap:6px;justify-content:center;margin-bottom:22px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all 0.3s;}
+.dot.done{background:var(--good);}.dot.active{background:var(--accent);transform:scale(1.3);}
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+.stat-bar-wrap{height:6px;background:var(--border);border-radius:100px;overflow:hidden;margin-bottom:4px;}
+.stat-bar-fill{height:100%;border-radius:100px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);}
+.stat-val{font-size:12px;color:var(--muted);}
+.week-badge{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.week-num{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;font-weight:700;font-size:12px;padding:4px 12px;border-radius:100px;text-transform:uppercase;}
+.week-title{font-family:'Playfair Display',serif;font-size:12px;color:var(--muted);font-style:italic;}
+.topic-tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:14px;}
+.topic-porn{background:rgba(139,127,212,0.2);color:#b8aef0;border:1px solid rgba(139,127,212,0.4);}
+.topic-anger{background:rgba(224,90,90,0.15);color:#e87a7a;border:1px solid rgba(224,90,90,0.3);}
+.topic-pride{background:rgba(232,168,56,0.15);color:var(--accent);border:1px solid rgba(232,168,56,0.3);}
+.topic-substance{background:rgba(76,175,130,0.12);color:#6dd4a8;border:1px solid rgba(76,175,130,0.25);}
+.topic-general{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border);}
+.scenario-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px 24px;margin-bottom:18px;position:relative;overflow:hidden;}
+.scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.scenario-who{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--card2);border:2px solid var(--border);flex-shrink:0;}
+.who-name{font-weight:500;font-size:15px;}.who-role{font-size:12px;color:var(--muted);}
+.scenario-text{font-size:15px;line-height:1.75;color:var(--text);}
+.scenario-text-ta{font-family:'Noto Serif Tamil',serif;font-size:14px;line-height:1.9;color:#c8c0e0;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.scenario-context{font-size:13px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:12px;border-top:1px solid var(--border);}
+.choices{display:flex;flex-direction:column;gap:10px;}
+.choice-btn{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;cursor:pointer;transition:all 0.2s;text-align:left;width:100%;font-family:'DM Sans',sans-serif;color:var(--text);display:flex;align-items:flex-start;gap:10px;}
+.choice-btn:hover{border-color:var(--accent);background:var(--card2);transform:translateX(4px);}
+.choice-letter{display:inline-flex;width:24px;height:24px;border-radius:6px;background:var(--card2);border:1px solid var(--border);align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--accent);flex-shrink:0;margin-top:1px;}
+.choice-text{font-size:14px;line-height:1.5;}
+.choice-btn.sel-good{border-color:var(--good);background:rgba(76,175,130,0.08);}
+.choice-btn.sel-warn{border-color:var(--warn);background:rgba(232,168,56,0.08);}
+.choice-btn.sel-bad{border-color:var(--bad);background:rgba(224,90,90,0.08);}
+.outcome-panel{border-radius:16px;padding:20px 22px;margin-top:14px;display:none;animation:fadeIn 0.4s ease;}
+.outcome-panel.show{display:block;}
+.outcome-panel.good{background:rgba(76,175,130,0.1);border:1px solid rgba(76,175,130,0.3);}
+.outcome-panel.warn{background:rgba(232,168,56,0.1);border:1px solid rgba(232,168,56,0.3);}
+.outcome-panel.bad{background:rgba(224,90,90,0.1);border:1px solid rgba(224,90,90,0.3);}
+.out-icon{font-size:24px;margin-bottom:8px;display:block;}
+.out-title{font-weight:600;font-size:15px;margin-bottom:6px;}
+.outcome-panel.good .out-title{color:var(--good);}
+.outcome-panel.warn .out-title{color:var(--warn);}
+.outcome-panel.bad .out-title{color:var(--bad);}
+.out-text{font-size:13px;line-height:1.6;color:var(--muted);}
+.bible-ref{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);font-size:12px;color:var(--accent);font-style:italic;}
+.next-btn-wrap{margin-top:18px;text-align:right;}
+.btn-next{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;font-weight:600;font-size:14px;padding:14px 32px;border-radius:100px;border:none;cursor:pointer;transition:all 0.2s;display:none;}
+.btn-next.show{display:inline-block;}
+@media(max-width:480px){.btn-next.show{display:block;width:100%;text-align:center;}}
+/* END */
+.end-wrap{text-align:center;padding:40px 0;}
+.end-big{font-size:68px;display:block;margin-bottom:16px;}
+.end-wrap h2{font-family:'Playfair Display',serif;font-size:28px;color:var(--accent);margin-bottom:8px;}
+.end-wrap>p{color:var(--muted);font-size:15px;line-height:1.6;max-width:420px;margin:0 auto 20px;}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0;}
+.score-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 10px;text-align:center;}
+.score-big{font-size:36px;font-weight:700;font-family:'Playfair Display',serif;}
+.s-good .score-big{color:var(--good);}.s-warn .score-big{color:var(--warn);}.s-bad .score-big{color:var(--bad);}
+.score-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.rpt-lang-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px 20px;margin:20px 0;text-align:center;}
+.rpt-lang-box h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent);margin-bottom:6px;}
+.rpt-lang-box p{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+.rpt-lang-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.rpt-lang-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.rpt-lang-btn:hover{background:var(--accent);color:#1a1000;}
+.btn-restart{background:transparent;border:1.5px solid var(--accent);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;padding:13px 36px;border-radius:100px;cursor:pointer;transition:all 0.2s;margin-top:12px;}
+.btn-restart:hover{background:var(--accent);color:#1a1000;}
+/* REPORT */
+.rpt-header{background:linear-gradient(135deg,#1a1830,#211f38);border-bottom:2px solid var(--accent);padding:20px 18px;position:sticky;top:0;z-index:10;}
+.rpt-back{background:none;border:none;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;padding:4px 0;}
+.rpt-back::before{content:'←';font-size:16px;}
+.rpt-h-title{font-family:'Playfair Display',serif;font-size:clamp(18px,4.5vw,26px);color:var(--accent);font-weight:700;}
+.rpt-h-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.rpt-body{padding:20px 16px 60px;}
+.rpt-summary{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;}
+.rpt-sum-icon{font-size:48px;flex-shrink:0;}
+.rpt-sum-text h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent);margin-bottom:4px;}
+.rpt-sum-text p{font-size:13px;color:var(--muted);line-height:1.6;}
+.rpt-scores{display:flex;gap:10px;margin-bottom:20px;}
+.rs{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center;}
+.rs-num{font-size:28px;font-weight:700;font-family:'Playfair Display',serif;}
+.rs.rg .rs-num{color:var(--good);}.rs.rw .rs-num{color:var(--warn);}.rs.rb .rs-num{color:var(--bad);}
+.rs-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.r-scene{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden;}
+.r-scene::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;}
+.r-scene.r-good::before{background:var(--good);}.r-scene.r-warn::before{background:var(--warn);}.r-scene.r-bad::before{background:var(--bad);}
+.r-scene-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.r-wpill{font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px;text-transform:uppercase;background:rgba(232,168,56,0.15);color:var(--accent);border:1px solid rgba(232,168,56,0.3);}
+.r-tpill{font-size:10px;padding:2px 9px;border-radius:100px;color:var(--muted);background:rgba(255,255,255,0.05);border:1px solid var(--border);}
+.r-badge{margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;}
+.r-good .r-badge{background:rgba(76,175,130,0.2);color:var(--good);border:1px solid rgba(76,175,130,0.3);}
+.r-warn .r-badge{background:rgba(232,168,56,0.2);color:var(--warn);border:1px solid rgba(232,168,56,0.3);}
+.r-bad .r-badge{background:rgba(224,90,90,0.2);color:var(--bad);border:1px solid rgba(224,90,90,0.3);}
+.r-stitle{font-family:'Playfair Display',serif;font-size:15px;color:var(--text);margin-bottom:8px;}
+.r-clabel{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
+.r-ctext{font-size:13px;color:var(--text);line-height:1.5;background:rgba(255,255,255,0.03);border-radius:8px;padding:8px 10px;border:1px solid var(--border);margin-bottom:10px;}
+.r-analysis{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:6px;}
+.r-verse{font-size:12px;color:var(--accent);font-style:italic;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);}
+.r-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}
+.r-section h3{font-family:'Playfair Display',serif;font-size:15px;color:var(--accent);margin-bottom:12px;}
+.r-point{display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:10px;}
+.r-point::before{content:'✦';color:var(--accent);flex-shrink:0;margin-top:1px;}
+.rpt-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+.ra-btn{flex:1;min-width:120px;padding:13px 20px;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;}
+.ra-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;}
+.ra-ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);}
+/* ADMIN */
+.adm-header{background:linear-gradient(135deg,#1a1830,#211f38);border-bottom:2px solid #e05a5a;padding:18px;position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.adm-header h2{font-family:'Playfair Display',serif;font-size:20px;color:#e05a5a;}
+.adm-header p{font-size:12px;color:var(--muted);margin-top:3px;}
+.adm-hbtns{display:flex;gap:8px;flex-wrap:wrap;}
+.adm-btn{padding:9px 18px;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.adm-save{background:linear-gradient(135deg,var(--good),#3a9e6e);color:#fff;}
+.adm-reset{background:rgba(224,90,90,0.1);border:1px solid rgba(224,90,90,0.3)!important;color:#e87a7a;border:none;}
+.adm-exit{background:transparent;border:1.5px solid var(--muted)!important;color:var(--muted);border:none;}
+.adm-exit:hover{border-color:var(--accent)!important;color:var(--accent);}
+.adm-body{padding:16px 14px 80px;}
+.adm-tabs{display:flex;gap:8px;margin-bottom:18px;}
+.adm-tab{padding:9px 22px;border-radius:100px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.adm-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(232,168,56,0.08);}
+.adm-sc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}
+.adm-sc-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;margin-bottom:4px;}
+.adm-sc-hl{display:flex;align-items:center;gap:10px;}
+.adm-wbadge{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1000;font-weight:700;font-size:11px;padding:3px 10px;border-radius:100px;}
+.adm-sc-title{font-family:'Playfair Display',serif;font-size:14px;color:var(--text);}
+.adm-toggle{color:var(--muted);font-size:18px;transition:transform 0.2s;}
+.adm-toggle.open{transform:rotate(180deg);}
+.adm-fields{display:none;flex-direction:column;gap:12px;margin-top:14px;}
+.adm-fields.open{display:flex;}
+.adm-f{display:flex;flex-direction:column;gap:5px;}
+.adm-f label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.adm-f input,.adm-f textarea{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none;transition:border 0.2s;resize:vertical;}
+.adm-f input:focus,.adm-f textarea:focus{border-color:var(--accent);}
+.adm-f textarea{min-height:80px;}
+.adm-choice{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:6px;}
+.adm-ch{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.adm-cletter{width:24px;height:24px;border-radius:6px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent);}
+.adm-ctype{font-size:11px;padding:2px 9px;border-radius:100px;font-weight:600;}
+.adm-ctype.good{background:rgba(76,175,130,0.15);color:var(--good);border:1px solid rgba(76,175,130,0.3);}
+.adm-ctype.warn{background:rgba(232,168,56,0.15);color:var(--warn);border:1px solid rgba(232,168,56,0.3);}
+.adm-ctype.bad{background:rgba(224,90,90,0.15);color:var(--bad);border:1px solid rgba(224,90,90,0.3);}
+.adm-recid{font-size:10px;color:#6b5a8a;margin-left:auto;font-family:monospace;}
+.adm-fx{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;}
+.adm-fxi{display:flex;flex-direction:column;gap:4px;}
+.adm-fxi label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.adm-fxi input{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none;}
+.adm-fxi input:focus{border-color:var(--accent);}
+.adm-choices-lbl{font-size:12px;font-weight:600;color:var(--accent);margin:8px 0 6px;}
+.adm-recid-info{font-size:10px;color:#6b5a8a;font-family:monospace;margin-bottom:8px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--good);color:#fff;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:600;z-index:999;display:none;animation:fadeIn 0.3s ease;}
+.toast.show{display:block;}
+.loading-screen{text-align:center;padding:80px 20px;color:var(--muted);}
+@media(max-width:480px){.lang-pick{flex-direction:column;align-items:center;}.rpt-summary{flex-direction:column;text-align:center;}.adm-header{flex-direction:column;align-items:flex-start;}}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- TITLE SCREEN -->
-<div class="screen active" id="screen-title">
+<!-- LOADING -->
+<div class="screen active" id="screen-loading">
+  <div class="loading-screen"><span class="flame">🔥</span><p style="margin-top:16px;font-size:16px;">Loading scenarios...</p></div>
+</div>
+
+<!-- TITLE -->
+<div class="screen" id="screen-title">
   <div class="title-wrap">
     <span class="flame">🔥</span>
     <h1>Brothers<br><em>Prayer Cell</em></h1>
     <div class="title-ta">சகோதரர்கள் ஜெபக் குழு</div>
     <p>A boys-only simulator. Real scenarios. Real struggles. You're the shepherd — your choices shape the group.</p>
-    <div class="title-sub-ta">ஆண்கள் மட்டும் சிமுலேட்டர். உண்மையான நிகழ்வுகள். நீ மேய்ப்பன் — உன் தேர்வுகள் குழுவை வடிவமைக்கும்.</div>
+    <div class="title-sub-ta">உங்களுடைய முடிவுகள் உங்கள் ஜெபக்குழுவை வலிமையாக உருவாக்கும்</div>
     <div class="tag-row">
       <div class="tag"><b>8</b> Scenarios</div>
       <div class="tag">Addiction &amp; Shame</div>
       <div class="tag">Anger &amp; Pride</div>
       <div class="tag">Based on <b>Scripture</b></div>
     </div>
-    <div class="warning-box">
-      <strong>Safe space notice:</strong> This simulator addresses real issues guys face — pornography, anger, substance use, and pride. These topics are included so they can be talked about honestly, not ignored.
-    </div>
-
-    <!-- Language pick -->
+    <div class="warning-box"><strong>Safe space notice:</strong> This simulator addresses real issues guys face — pornography, anger, substance use, and pride. These topics are included so they can be talked about honestly, not ignored.</div>
     <div style="margin-top:28px;text-align:center;">
       <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Choose your language / மொழியை தேர்ந்தெடு</div>
       <div class="lang-pick">
-        <div class="lang-opt sel" id="opt-en" onclick="pickLang('en')">
-          <span class="lo-icon">🇬🇧</span>
-          <div class="lo-label">English</div>
-          <div class="lo-sub">All scenarios in English</div>
-        </div>
-        <div class="lang-opt" id="opt-ta" onclick="pickLang('ta')">
-          <span class="lo-icon">🇮🇳</span>
-          <div class="lo-label">தமிழ்</div>
-          <div class="lo-sub">All scenarios in Tamil</div>
-        </div>
-        <div class="lang-opt" id="opt-both" onclick="pickLang('both')">
-          <span class="lo-icon">🌐</span>
-          <div class="lo-label">Both / இரண்டும்</div>
-          <div class="lo-sub">English + Tamil</div>
-        </div>
+        <div class="lang-opt sel" id="opt-en" onclick="pickLang('en')"><span class="lo-icon">🇬🇧</span><div class="lo-label">English</div><div class="lo-sub">All in English</div></div>
+        <div class="lang-opt" id="opt-ta" onclick="pickLang('ta')"><span class="lo-icon">🇮🇳</span><div class="lo-label">தமிழ்</div><div class="lo-sub">All in Tamil</div></div>
+        <div class="lang-opt" id="opt-both" onclick="pickLang('both')"><span class="lo-icon">🌐</span><div class="lo-label">Both</div><div class="lo-sub">English + Tamil</div></div>
       </div>
     </div>
-
-    <button class="btn btn-primary btn-start" onclick="startGame()">Enter the Room →</button>
+    <button class="btn-primary btn-start" onclick="startGame()">Enter the Room →</button>
   </div>
 </div>
 
-<!-- GAME SCREEN -->
+<!-- GAME -->
 <div class="screen" id="screen-game">
   <div class="progress-dots" id="progress-dots"></div>
   <div class="stats-bar">
-    <div class="stat-card">
-      <div class="stat-label" id="lbl-unity">Brotherhood</div>
-      <div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-unity" style="background:var(--good);"></div></div>
-      <div class="stat-val" id="val-unity">70%</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label" id="lbl-shepherd">Shepherd Health</div>
-      <div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-shepherd" style="background:var(--accent);"></div></div>
-      <div class="stat-val" id="val-shepherd">75%</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label" id="lbl-depth">Honesty Level</div>
-      <div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-depth" style="background:#8b7fd4;"></div></div>
-      <div class="stat-val" id="val-depth">50%</div>
-    </div>
+    <div class="stat-card"><div class="stat-label" id="lbl-u">Brotherhood</div><div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-u"></div></div><div class="stat-val" id="val-u">70%</div></div>
+    <div class="stat-card"><div class="stat-label" id="lbl-s">Shepherd</div><div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-s"></div></div><div class="stat-val" id="val-s">75%</div></div>
+    <div class="stat-card"><div class="stat-label" id="lbl-d">Honesty</div><div class="stat-bar-wrap"><div class="stat-bar-fill" id="bar-d"></div></div><div class="stat-val" id="val-d">50%</div></div>
   </div>
-  <div class="week-badge">
-    <span class="week-num" id="week-num">Week 1</span>
-    <span class="week-title" id="week-title"></span>
-  </div>
+  <div class="week-badge"><span class="week-num" id="wk-num">Week 1</span><span class="week-title" id="wk-title"></span></div>
   <div class="scenario-card">
     <div class="topic-tag" id="sc-topic"></div>
-    <div class="scenario-who">
-      <div class="avatar" id="sc-avatar">🙏</div>
-      <div><div class="who-name" id="sc-name"></div><div class="who-role" id="sc-role"></div></div>
-    </div>
+    <div class="scenario-who"><div class="avatar" id="sc-av">🙏</div><div><div class="who-name" id="sc-name"></div><div class="who-role" id="sc-role"></div></div></div>
     <div class="scenario-text" id="sc-text"></div>
     <div class="scenario-text-ta" id="sc-text-ta" style="display:none;"></div>
-    <div class="scenario-context" id="sc-context"></div>
+    <div class="scenario-context" id="sc-ctx"></div>
   </div>
   <div class="choices" id="choices-wrap"></div>
   <div class="outcome-panel" id="outcome-panel">
-    <span class="outcome-icon" id="out-icon"></span>
-    <div class="outcome-title" id="out-title"></div>
-    <div class="outcome-text" id="out-text"></div>
-    <div class="outcome-text-ta" id="out-text-ta" style="display:none;"></div>
+    <span class="out-icon" id="out-icon"></span>
+    <div class="out-title" id="out-title"></div>
+    <div class="out-text" id="out-text"></div>
     <div class="bible-ref" id="out-ref"></div>
   </div>
-  <div class="next-btn-wrap">
-    <button class="btn-next" id="btn-next" onclick="nextScenario()">Next →</button>
-  </div>
+  <div class="next-btn-wrap"><button class="btn-next" id="btn-next" onclick="nextScenario()">Next →</button></div>
 </div>
 
-<!-- END SCREEN -->
+<!-- END -->
 <div class="screen" id="screen-end">
   <div class="end-wrap">
     <span class="end-big" id="end-emoji">🔥</span>
     <h2 id="end-title"></h2>
     <p id="end-desc"></p>
     <div class="score-grid">
-      <div class="score-item s-good"><div class="score-big" id="end-good">0</div><div class="score-lbl" id="end-lbl-wise">Wise</div></div>
-      <div class="score-item s-warn"><div class="score-big" id="end-warn">0</div><div class="score-lbl" id="end-lbl-caut">Cautious</div></div>
-      <div class="score-item s-bad"><div class="score-big" id="end-bad">0</div><div class="score-lbl" id="end-lbl-miss">Missed</div></div>
+      <div class="score-item s-good"><div class="score-big" id="e-good">0</div><div class="score-lbl" id="e-lbl-g">Wise</div></div>
+      <div class="score-item s-warn"><div class="score-big" id="e-warn">0</div><div class="score-lbl" id="e-lbl-w">Cautious</div></div>
+      <div class="score-item s-bad"><div class="score-big" id="e-bad">0</div><div class="score-lbl" id="e-lbl-b">Missed</div></div>
     </div>
-
-    <!-- Report language choice -->
-    <div class="report-lang-section">
-      <h3 id="rls-title">Generate Your Report</h3>
-      <p id="rls-sub">Get a full analysis of every decision you made — what it meant, what Scripture says, and where you grew.</p>
-      <span class="ta" id="rls-sub-ta">உங்கள் ஒவ்வொரு தேர்வும் என்ன அர்த்தம், வேதம் என்ன சொல்கிறது என்பதை பார்க்கவும்.</span>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;" id="rls-choose">Choose the language for your report:</div>
-      <div class="report-lang-btns">
-        <button class="report-lang-btn" onclick="generateReport('en')">📄 English Report</button>
-        <button class="report-lang-btn" onclick="generateReport('ta')">📄 தமிழ் அறிக்கை</button>
-        <button class="report-lang-btn" onclick="generateReport('both')">📄 Both / இரண்டும்</button>
+    <div class="rpt-lang-box">
+      <h3>Generate Your Report</h3>
+      <p>Full analysis of every decision — what it meant, what Scripture says, and where you grew.</p>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Choose report language:</div>
+      <div class="rpt-lang-btns">
+        <button class="rpt-lang-btn" onclick="generateReport('en')">📄 English Report</button>
+        <button class="rpt-lang-btn" onclick="generateReport('ta')">📄 தமிழ் அறிக்கை</button>
+        <button class="rpt-lang-btn" onclick="generateReport('both')">📄 Both / இரண்டும்</button>
       </div>
     </div>
-
-    <button class="btn-restart" onclick="restartGame()" id="btn-restart">↩ Play Again</button>
+    <button class="btn-restart" onclick="restartGame()">↩ Play Again</button>
   </div>
 </div>
 
-<!-- REPORT SCREEN -->
+<!-- REPORT -->
 <div class="screen" id="screen-report">
-  <div class="report-header">
-    <button class="report-back" onclick="backToEnd()"><span id="rb-label">Back to Results</span></button>
-    <div class="report-title" id="rpt-title">Shepherd's Report</div>
-    <div class="report-subtitle" id="rpt-sub">Prayer Cell Simulator — Full Analysis</div>
+  <div class="rpt-header">
+    <button class="rpt-back" onclick="backToEnd()">Back to Results</button>
+    <div class="rpt-h-title" id="rpt-h-title">Shepherd's Report</div>
+    <div class="rpt-h-sub">Prayer Cell Simulator — Full Analysis</div>
   </div>
-  <div class="report-body" id="report-body"></div>
+  <div class="rpt-body" id="rpt-body"></div>
+</div>
+
+<!-- ADMIN -->
+<div class="screen" id="screen-admin">
+  <div class="adm-header">
+    <div><h2>⚙️ Admin Editor</h2><p>Edit questions &amp; choices · ID = record key · Saved to browser</p></div>
+    <div class="adm-hbtns">
+      <button class="adm-btn adm-save" onclick="saveAdmin()">💾 Save</button>
+      <button class="adm-btn adm-reset" onclick="resetAdmin()">🗑 Reset to Default</button>
+      <button class="adm-btn adm-exit" onclick="exitAdmin()">✕ Exit</button>
+    </div>
+  </div>
+  <div class="adm-body">
+    <div class="adm-tabs">
+      <button class="adm-tab active" id="atab-en" onclick="switchAdmLang('en')">🇬🇧 English</button>
+      <button class="adm-tab" id="atab-ta" onclick="switchAdmLang('ta')">🇮🇳 தமிழ்</button>
+    </div>
+    <div id="adm-en"></div>
+    <div id="adm-ta" style="display:none;"></div>
+  </div>
 </div>
 
 </div><!-- #app -->
-
+<div class="toast" id="toast">✅ Changes saved!</div>
 <script>
-// ─────────────────────────────────────────────
-//  LANGUAGE STATE
-// ─────────────────────────────────────────────
-let lang = 'en'; // 'en' | 'ta' | 'both'
+// ── DATA & STATE ──────────────────────────────────────
+let enData=null, taData=null;
+let lang='en', admLang='en';
+const gs={current:0,unity:70,shepherd:75,depth:50,good:0,warn:0,bad:0,answered:false,log:[]};
+const SK_EN='pc_en_v2', SK_TA='pc_ta_v2';
+const TC={pornography:'topic-porn',anger:'topic-anger',pride:'topic-pride',substance:'topic-substance',general:'topic-general'};
 
-const UI = {
-  en: {
-    unity:'Brotherhood', shepherd:'Shepherd Health', depth:'Honesty Level',
-    wise:'Wise', cautious:'Cautious', missed:'Missed',
-    nextWeek:'Next Week →', seeResults:'See Results →',
-    playAgain:'↩ Play Again',
-    backToResults:'Back to Results',
-    reportTitle:"Shepherd's Report",
-    reportSub:'Prayer Cell Simulator — Full Analysis',
-    yourChoice:'Your Choice',
-    analysis:'Analysis',
-    verse:'Scripture',
-    strengths:'💪 Where You Led Well',
-    growth:'🌱 Where You Can Grow',
-    overallTitle:'Overall Assessment',
-    scenarioOf: (n,t) => `Week ${n} of 8`,
-    resultLabels:{good:'Wise Choice',warn:'Cautious',bad:'Missed It'},
-    printBtn:'🖨️ Print / Save PDF',
-    restartBtn:'↩ Play Again',
-  },
-  ta: {
-    unity:'சகோதரத்துவம்', shepherd:'மேய்ப்பன் நலன்', depth:'நேர்மை அளவு',
-    wise:'ஞானம்', cautious:'எச்சரிக்கை', missed:'தவறவிட்டது',
-    nextWeek:'அடுத்த வாரம் →', seeResults:'முடிவுகளை பார் →',
-    playAgain:'↩ மீண்டும் விளையாடு',
-    backToResults:'முடிவுகளுக்கு திரும்பு',
-    reportTitle:'மேய்ப்பனின் அறிக்கை',
-    reportSub:'ஜெபக் குழு சிமுலேட்டர் — முழு பகுப்பாய்வு',
-    yourChoice:'உன் தேர்வு',
-    analysis:'பகுப்பாய்வு',
-    verse:'வேதவாக்கு',
-    strengths:'💪 நன்றாக வழிநடத்திய இடங்கள்',
-    growth:'🌱 வளர வேண்டிய இடங்கள்',
-    overallTitle:'மொத்த மதிப்பீடு',
-    scenarioOf: (n,t) => `வாரம் ${n} / 8`,
-    resultLabels:{good:'ஞானமான தேர்வு',warn:'எச்சரிக்கை',bad:'தவறவிட்டது'},
-    printBtn:'🖨️ அச்சிடு / PDF சேமி',
-    restartBtn:'↩ மீண்டும் விளையாடு',
-  }
-};
-
-function getUI(key) {
-  if (lang === 'ta') return UI.ta[key];
-  return UI.en[key];
+// ── LOAD ──────────────────────────────────────────────
+async function loadData(){
+  const se=localStorage.getItem(SK_EN), st=localStorage.getItem(SK_TA);
+  try{ enData = se ? JSON.parse(se) : await(await fetch('english_questions.json')).json(); }catch(e){enData={scenarios:[]};}
+  try{ taData = st ? JSON.parse(st) : await(await fetch('tamil_questions.json')).json(); }catch(e){taData={scenarios:[]};}
+  window.location.hash==='#admin' ? showAdmin() : showScreen('screen-title');
 }
 
-function pickLang(l) {
-  lang = l;
-  ['en','ta','both'].forEach(x => document.getElementById('opt-'+x).classList.remove('sel'));
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function pickLang(l){
+  lang=l;
+  ['en','ta','both'].forEach(x=>document.getElementById('opt-'+x).classList.remove('sel'));
   document.getElementById('opt-'+l).classList.add('sel');
 }
+function clamp(v){return Math.min(100,Math.max(0,v));}
 
-// ─────────────────────────────────────────────
-//  SCENARIOS DATA
-// ─────────────────────────────────────────────
-const scenarios = [
-  {
-    week:"Week 1", weekTa:"வாரம் 1",
-    title:"The Confession Nobody Expected", titleTa:"யாரும் எதிர்பாராத அறிக்கை",
-    topic:"pornography", topicLabel:"Sexual Addiction", topicLabelTa:"பாலியல் அடிமைத்தனம்",
-    avatar:"😶",
-    name:"Karthik, 19", nameTa:"கார்த்திக், 19",
-    role:"College student — first term in the group", roleTa:"கல்லூரி மாணவன் — குழுவில் முதல் காலாண்டு",
-    text:"During open prayer time, Karthik suddenly goes quiet, then says: 'I need to say something. I've been watching pornography almost every day for two years. I've tried to stop so many times. I feel disgusting. I didn't know who else to tell.' The room goes completely silent. Everyone is staring at the floor.",
-    textTa:"திறந்த ஜெப நேரத்தில், கார்த்திக் திடீரென அமைதியாகி, பின் சொல்கிறான்: 'நான் ஒன்று சொல்ல வேண்டும். இரண்டு வருடமாக கிட்டத்தட்ட தினமும் ஆபாசம் பார்த்துக்கொண்டிருக்கிறேன். எத்தனை முறையோ நிறுத்த முயற்சித்தேன். என்னை நானே அசுத்தமாக உணர்கிறேன்.' அறை முற்றிலும் அமைதியாகிவிடுகிறது.",
-    context:"This is the first time anyone has been this raw in the group. How you respond sets the tone for everything that follows.",
-    contextTa:"குழுவில் யாரும் இவ்வளவு நேர்மையாக இருந்ததில்லை. நீ எப்படி பதிலளிக்கிறாய் என்பது எல்லாவற்றையும் தீர்மானிக்கும்.",
-    choices:[
-      { letter:"A",
-        text:"Let the silence sit for a moment, then say: 'Thank you for trusting us with that. That took real courage. You're not alone, and you're not disgusting. This is exactly what this room is for.'",
-        textTa:"ஒரு நிமிடம் அமைதியை வைத்திரு, பின் சொல்: 'எங்களை நம்பி சொன்னதற்கு நன்றி. அது உண்மையான தைரியம். நீ தனியில்லை, நீ அசுத்தமில்லை. இந்த அறை இதற்காகவே இருக்கிறது.'",
-        type:"good", icon:"🤝",
-        title:"The response that heals", titleTa:"குணமாக்கும் பதில்",
-        outcome:"Three other guys in the room exhale visibly. Two of them share their own struggles before the night is over. The group crosses a threshold into real brotherhood.",
-        outcomeTa:"அறையில் இன்னும் மூன்று பேர் நிம்மதியாக மூச்சு விடுகிறார்கள். இரவு முடிவதற்கு முன்பு இருவர் தங்கள் போராட்டங்களை பகிர்கிறார்கள். குழு உண்மையான சகோதரத்துவத்தில் நுழைகிறது.",
-        ref:"Confess your sins to one another and pray for one another, that you may be healed. — James 5:16",
-        analysis:"You created a safe landing for vulnerability. The first person to be honest changes what's possible for everyone who comes after. You didn't panic, moralize, or redirect — you stayed.",
-        analysisTa:"பாதிப்பிற்கு பாதுகாப்பான தரிப்பிடத்தை உருவாக்கினாய். நேர்மையாக இருந்த முதல் நபர் பிறர் எல்லாருக்கும் வாய்ப்பை மாற்றுகிறான். நீ பீதியடையவில்லை, நீதிமொழி சொல்லவில்லை — தங்கினாய்."
-      },
-      { letter:"B",
-        text:"Pray over him immediately and move on quickly — don't let the moment become too uncomfortable.",
-        textTa:"உடனே அவனுக்காக ஜெபி, விரைவில் தொடர் — தருணம் அதிகமாக அசௌகரியமாக வேண்டாம்.",
-        type:"warn", icon:"⏩",
-        title:"The fast pivot", titleTa:"வேகமான திருப்பம்",
-        outcome:"Karthik feels somewhat acknowledged but also slightly rushed. The other guys take the cue: real confessions get a quick prayer and we move on. Depth is capped.",
-        outcomeTa:"கார்த்திக் ஓரளவு அங்கீகரிக்கப்பட்டதாக உணர்கிறான், ஆனால் சிறிது அவசரப்படுத்தப்பட்டதாகவும். மற்றவர்கள் குறிப்பை புரிந்துகொள்கிறார்கள்: உண்மையான அறிக்கைகள் விரைவான ஜெபம் பெறும், பின் தொடர்வோம்.",
-        ref:"Bear one another's burdens, and so fulfil the law of Christ. — Galatians 6:2",
-        analysis:"You showed up — but rushed past the moment where real healing could begin. Covering discomfort with prayer isn't the same as sitting with someone in their pain.",
-        analysisTa:"வந்தாய் — ஆனால் உண்மையான குணம் தொடங்கக்கூடிய தருணத்தை விரைந்து கடந்துவிட்டாய். அசௌகரியத்தை ஜெபத்தால் மூடுவது யாரோ அவர்கள் வலியில் அவர்களோடு அமர்வது அல்ல."
-      },
-      { letter:"C",
-        text:"Tell him this might be better discussed privately with a counsellor or pastor rather than in the group.",
-        textTa:"இது குழுவில் அல்ல, ஒரு ஆலோசகர் அல்லது போதகரிடம் தனியாக பேசுவது நல்லது என்று சொல்.",
-        type:"bad", icon:"🚪",
-        title:"The redirect that shuts the door", titleTa:"கதவை மூடும் திசை திருப்பல்",
-        outcome:"Karthik nods and goes quiet for the rest of the session. He doesn't come back. The group never reaches that depth again.",
-        outcomeTa:"கார்த்திக் தலையசைத்து மீதி நேரம் அமைதியாகிவிடுகிறான். திரும்பி வருவதில்லை. குழு மீண்டும் அந்த ஆழத்தை அடைவதில்லை.",
-        ref:"The prodigal son's father didn't redirect him to a counsellor. He ran to him, embraced him. — Luke 15:20",
-        analysis:"You sent him away precisely when he finally arrived. Professional support has its place — but first he needed to know the room was safe. You answered a question he didn't ask.",
-        analysisTa:"அவன் இறுதியில் வந்தபோது அவனை திரும்ப அனுப்பினாய். தொழில்முறை ஆதரவுக்கு இடமுண்டு — ஆனால் முதலில் அவனுக்கு அறை பாதுகாப்பானது என்று தெரிய வேண்டியிருந்தது."
-      }
-    ],
-    effects:{ good:{unity:20,shepherd:5,depth:25}, warn:{unity:5,shepherd:5,depth:-10}, bad:{unity:-20,shepherd:0,depth:-20} }
-  },
-  {
-    week:"Week 2", weekTa:"வாரம் 2",
-    title:"The Angry One", titleTa:"கோபப்பட்டவன்",
-    topic:"anger", topicLabel:"Anger & Aggression", topicLabelTa:"கோபம் & ஆக்ரோஷம்",
-    avatar:"😠",
-    name:"Daniel, 22", nameTa:"டேனியல், 22",
-    role:"Working youth — been in the group 2 years", roleTa:"வேலைக்கு போகும் இளைஞன் — 2 வருடமாக குழுவில்",
-    text:"Daniel explodes at another member during discussion — raises his voice, gets personal, says something cutting. The other guy shuts down. Daniel immediately looks embarrassed but says nothing. This isn't the first time. Outside the group, you've heard he's been getting into physical fights.",
-    textTa:"கலந்துரையாடலின் போது டேனியல் இன்னொரு உறுப்பினர் மேல் வெடிக்கிறான் — குரலை உயர்த்தி, தனிப்பட்ட விஷயங்கள் சொல்கிறான். மற்றவன் மூடிக்கொள்கிறான். டேனியல் உடனே வெட்கப்பட்டதாக தெரிகிறான், ஆனால் ஒன்றும் சொல்வதில்லை.",
-    context:"The group is watching how you handle this. The other member looks like he wants to leave.",
-    contextTa:"குழு நீ இதை எப்படி கையாளுகிறாய் என்று பார்க்கிறது. மற்றவன் போகவே விரும்புவது போல் தெரிகிறது.",
-    choices:[
-      { letter:"A",
-        text:"Address it directly but gently, right now: 'Daniel, let's slow down. That came out hard. Can we try that again?'",
-        textTa:"இப்போதே நேரடியாக ஆனால் மென்மையாக: 'டேனியல், சிறிது மெதுவாக போவோம். அது கஷ்டமாக வந்தது. மீண்டும் முயற்சிக்கலாமா?'",
-        type:"good", icon:"🕊️",
-        title:"Name it, don't avoid it", titleTa:"பெயரிடு, தவிர்க்காதே",
-        outcome:"Daniel's shoulders drop. He apologises to the other member. Later, he tells you nobody has ever challenged his anger without attacking him for it.",
-        outcomeTa:"டேனியலின் தோள்கள் தளர்கின்றன. மற்றவனிடம் மன்னிப்பு கேட்கிறான். பின்னர் உன்னிடம் சொல்கிறான்: யாரும் அவனை தாக்காமல் கோபத்தை சவால் செய்ததில்லை என்று.",
-        ref:"Speaking the truth in love, we will grow to become in every respect the mature body of Christ. — Ephesians 4:15",
-        analysis:"Naming the moment without shaming the person is one of the hardest and most important pastoral skills. You modelled conflict as something that can be resolved, not just absorbed.",
-        analysisTa:"நபரை நாணமடையாமல் தருணத்தை பெயரிடுவது மிக கடினமான மற்றும் முக்கியமான மேய்ப்பன் திறமை. சர்ச்சை தீர்க்கக்கூடியது என்று முன்மாதிரி காட்டினாய்."
-      },
-      { letter:"B",
-        text:"Let it go for now, speak to Daniel privately after the session so as not to embarrass him in front of everyone.",
-        textTa:"இப்போது விட்டுவிடு, கூட்டம் முடிந்த பிறகு டேனியலிடம் தனிமையில் பேசு — எல்லாரின் முன்பும் அவமானப்படுத்த வேண்டாம்.",
-        type:"warn", icon:"🔇",
-        title:"The private confrontation", titleTa:"தனிப்பட்ட எதிர்கொள்ளல்",
-        outcome:"Daniel hears you but the other member didn't see any accountability in the room. He stops coming. Daniel continues the pattern.",
-        outcomeTa:"டேனியல் கேட்கிறான், ஆனால் மற்றவன் அறையில் எந்த பொறுப்புணர்வும் பார்க்கவில்லை. வருவதை நிறுத்துகிறான். டேனியல் பாணி தொடர்கிறது.",
-        ref:"If your brother sins against you, go and tell him his fault, between you and him alone. — Matthew 18:15",
-        analysis:"Private accountability matters. But the person who was hurt needed to see restoration happen in the room where they were hurt. Grace without witness can feel like cover-up.",
-        analysisTa:"தனிப்பட்ட பொறுப்புணர்வு முக்கியம். ஆனால் காயப்பட்ட நபர், காயப்பட்ட அறையிலேயே மறுசீரமைப்பை பார்க்க வேண்டியிருந்தது."
-      },
-      { letter:"C",
-        text:"Carry on with the session — guys argue, it's normal, it'll cool down on its own.",
-        textTa:"கூட்டத்தை தொடர் — ஆண்கள் வாதிடுவார்கள், இது சாதாரணம், தானாகவே ஆறும்.",
-        type:"bad", icon:"🙈",
-        title:"The look-away", titleTa:"பார்வையை திருப்பிக்கொள்",
-        outcome:"It doesn't cool down. The other member leaves early. Three guys are visibly uncomfortable. The group learns: nobody will protect you here.",
-        outcomeTa:"ஆறவில்லை. மற்றவன் முன்கூட்டியே போய்விடுகிறான். மூன்று பேர் தெளிவாக அசௌகரியமாக இருக்கிறார்கள். குழு கற்றுக்கொள்கிறது: இங்கே யாரும் உன்னை காக்கமாட்டார்கள்.",
-        ref:"Do not let the sun go down while you are still angry. — Ephesians 4:26-27",
-        analysis:"Avoidance communicates permission. When a shepherd looks away, the group infers that's the acceptable response. What you tolerate, you teach.",
-        analysisTa:"தவிர்ப்பு அனுமதியை தெரிவிக்கிறது. மேய்ப்பன் பார்வையை திருப்பும்போது, குழு அதுவே ஏற்கத்தக்க பதில் என்று புரிந்துகொள்கிறது."
-      }
-    ],
-    effects:{ good:{unity:15,shepherd:5,depth:15}, warn:{unity:-5,shepherd:5,depth:0}, bad:{unity:-20,shepherd:-5,depth:-10} }
-  },
-  {
-    week:"Week 3", weekTa:"வாரம் 3",
-    title:"The High Guy", titleTa:"போதையில் வந்தவன்",
-    topic:"substance", topicLabel:"Substance Use", topicLabelTa:"போதைப்பொருள் பயன்பாடு",
-    avatar:"😵",
-    name:"Rohan, 17", nameTa:"ரோகன், 17",
-    role:"School student — youngest in the group", roleTa:"பள்ளி மாணவன் — குழுவிலேயே இளையவன்",
-    text:"Rohan turns up to prayer cell and it's obvious something is off — slow speech, red eyes, keeps laughing at inappropriate moments. You're fairly sure he's high. After the session, he quietly says: 'Sorry man. I smoked before coming. I didn't want to skip prayer cell but I'd already done it.' He looks ashamed but also a little defiant.",
-    textTa:"ரோகன் ஜெபக் குழுவிற்கு வருகிறான், ஏதோ தவறு என்பது தெளிவாக தெரிகிறது — மெதுவான பேச்சு, சிவந்த கண்கள். கூட்டம் முடிந்த பிறகு மெதுவாக சொல்கிறான்: 'சாரி மச்சான். வருவதற்கு முன்பு புகை பிடித்தேன். ஜெபக் குழுவை தவிர்க்க விரும்பவில்லை, ஆனால் ஏற்கனவே செய்திருந்தேன்.' அவன் வெட்கப்பட்டதாக தெரிகிறான், சிறிது விரோதமாகவும்.",
-    context:"He came anyway. That means something. But this needs to be handled carefully.",
-    contextTa:"அவன் வந்தான். அது ஏதோ அர்த்தப்படுத்துகிறது. ஆனால் இதை கவனமாக கையாள வேண்டும்.",
-    choices:[
-      { letter:"A",
-        text:"Thank him for coming anyway, then have a real conversation: 'I'm not here to lecture you. What's going on that made you want to smoke before coming tonight?'",
-        textTa:"எப்படியும் வந்ததற்கு நன்றி சொல், பின் உண்மையான உரையாடல்: 'நான் உன்னை திட்ட இல்லை. இன்று இரவு வருவதற்கு முன்பு புகை பிடிக்க வைத்தது என்ன?'",
-        type:"good", icon:"❤️",
-        title:"Curiosity over condemnation", titleTa:"கண்டனத்தை விட கேள்வி",
-        outcome:"Rohan opens up about pressure at home. He came to prayer cell because it's the one place he doesn't feel judged. You pray together. He comes back next week, sober.",
-        outcomeTa:"ரோகன் வீட்டிலுள்ள அழுத்தத்தைப் பற்றி திறக்கிறான். ஜெபக் குழுவிற்கு வந்தான் ஏனென்றால் இது நியாயம் சொல்லப்படாத ஒரே இடம். ஒன்றாக ஜெபிக்கிறீர்கள். அடுத்த வாரம் சரியாக வருகிறான்.",
-        ref:"Jesus said it is not the healthy who need a doctor, but the sick. — Matthew 9:12",
-        analysis:"He showed up while high — that's actually a sign of trust. By asking 'why' instead of 'how could you,' you reached the root, not just the fruit. That's where change begins.",
-        analysisTa:"போதையில் வந்தான் — அது உண்மையில் நம்பிக்கையின் அடையாளம். 'எப்படி செய்தாய்' என்பதற்கு பதிலாக 'ஏன்' என்று கேட்டு, வேரை அடைந்தாய், பலனை அல்ல."
-      },
-      { letter:"B",
-        text:"Tell him it's great he came, but he needs to come sober next time — it's disrespectful to the others.",
-        textTa:"வந்தது நல்லது என்று சொல், ஆனால் அடுத்த முறை சரியாக வர வேண்டும் — மற்றவர்களுக்கு அது மரியாதையின்மை.",
-        type:"warn", icon:"📏",
-        title:"The boundary with care", titleTa:"அக்கறையுடன் வரம்பு",
-        outcome:"Rohan nods and takes it reasonably. But the deeper question — what's driving the use — doesn't get asked. He comes back, sober, but remains guarded.",
-        outcomeTa:"ரோகன் தலையசைத்து நியாயமாக எடுத்துக்கொள்கிறான். ஆனால் ஆழமான கேள்வி — என்ன அவனை ஓட்டுகிறது — கேட்கப்படவில்லை. திரும்பி வருகிறான், சரியாக, ஆனால் காவலாக இருக்கிறான்.",
-        ref:"Be wise in the way you act toward outsiders; make the most of every opportunity. — Colossians 4:5",
-        analysis:"Boundaries are important. But a boundary without curiosity only manages behaviour — it doesn't build a person. You kept him in the room but didn't reach him.",
-        analysisTa:"வரம்புகள் முக்கியம். ஆனால் ஆர்வமின்றி வரம்பு நடத்தையை மட்டும் நிர்வகிக்கிறது — ஒரு நபரை கட்டமைப்பதில்லை."
-      },
-      { letter:"C",
-        text:"Tell him he shouldn't come to prayer cell in that state and he needs to sort himself out first.",
-        textTa:"அந்த நிலையில் ஜெபக் குழுவிற்கு வரக்கூடாது, முதலில் தன்னை சரிப்படுத்திக்கொண்டு வர வேண்டும் என்று சொல்.",
-        type:"bad", icon:"🚫",
-        title:"The closed door", titleTa:"மூடிய கதவு",
-        outcome:"Rohan doesn't come back. He tells his friends the prayer cell is for people who already have it together. You've lost the most reachable moment in his life.",
-        outcomeTa:"ரோகன் திரும்பி வருவதில்லை. நண்பர்களிடம் சொல்கிறான்: ஜெபக் குழு ஏற்கனவே எல்லாம் சரியாக இருப்பவர்களுக்கு. அவன் வாழ்வில் மிக எட்டக்கூடிய தருணத்தை இழந்தாய்.",
-        ref:"The lost sheep didn't find its way back by being told to figure itself out. The shepherd went after it. — Luke 15:4",
-        analysis:"You made grace conditional on worthiness. But grace that only arrives after someone is clean isn't grace — it's reward. The whole point of the gospel runs the other way.",
-        analysisTa:"தகுதியில் கருணையை நிபந்தனையாக்கினாய். ஆனால் யாரோ சரியாக இருந்த பிறகு மட்டும் வரும் கருணை கருணையல்ல — அது பரிசு."
-      }
-    ],
-    effects:{ good:{unity:10,shepherd:5,depth:20}, warn:{unity:5,shepherd:5,depth:5}, bad:{unity:-15,shepherd:-5,depth:-20} }
-  },
-  {
-    week:"Week 4", weekTa:"வாரம் 4",
-    title:"The Alpha in the Room", titleTa:"அறையில் ஆல்பா",
-    topic:"pride", topicLabel:"Pride & Ego", topicLabelTa:"பெருமை & ஆணவம்",
-    avatar:"😎",
-    name:"Vijay, 21", nameTa:"விஜய், 21",
-    role:"Natural leader — campus popular guy", roleTa:"இயல்பான தலைவன் — கேம்பஸ் பிரபலம்",
-    text:"Vijay is gifted and confident. But in prayer cell, he subtly dominates — always has the best prayer, always has the answer, subtly one-ups anyone who shares a struggle. Other guys have started sharing less. One told you privately: 'I feel small whenever Vijay's here.'",
-    textTa:"விஜய் திறமைசாலி மற்றும் தன்னம்பிக்கையுள்ளவன். ஆனால் ஜெபக் குழுவில் அவன் நுட்பமாக ஆதிக்கம் செலுத்துகிறான் — எப்போதும் சிறந்த ஜெபம், எப்போதும் பதில் இருக்கும். மற்றவர்கள் குறைவாக பகிர ஆரம்பித்தார்கள். ஒருவன் தனிமையில் சொன்னான்: 'விஜய் இருக்கும்போது எல்லாம் நான் சிறியவனாக உணர்கிறேன்.'",
-    context:"Vijay isn't malicious. He probably doesn't realise he's doing it. But it's slowly killing the group's honesty.",
-    contextTa:"விஜய் தீய நோக்கம் கொண்டவன் அல்ல. அவன் இதை செய்கிறோம் என்று உணரவில்லை. ஆனால் இது குழுவின் நேர்மையை மெதுவாக கொல்கிறது.",
-    choices:[
-      { letter:"A",
-        text:"Have a private, honest conversation with Vijay: 'You're one of the strongest guys here. But I think the group needs you to create space more than fill it. Your listening might be more powerful than your speaking.'",
-        textTa:"விஜயிடம் தனிமையில் நேர்மையான உரையாடல்: 'நீ இங்கே வலிமையான பேரில் ஒருவன். ஆனால் குழுவிற்கு நீ நிரப்புவதை விட இடம் உருவாக்குவது தேவை. உன் கேட்பு உன் பேசுவதை விட வல்லமையானதாக இருக்கலாம்.'",
-        type:"good", icon:"🪞",
-        title:"Speaking to the man, not the behaviour", titleTa:"நடத்தையை அல்ல, நபரை நோக்கி",
-        outcome:"Vijay is quiet for a moment. Then: 'Nobody's ever said that to me.' Over the next few weeks, he visibly pulls back, asks more questions, and prays for others by name. The group opens up again.",
-        outcomeTa:"விஜய் ஒரு நிமிடம் அமைதியாகிறான். பின்: 'யாரும் என்னிடம் இதை சொன்னதில்லை.' அடுத்த சில வாரங்களில் அவன் தெளிவாக பின்வாங்கி, அதிக கேள்விகள் கேட்டு, மற்றவர்களின் பெயர் சொல்லி ஜெபிக்கிறான்.",
-        ref:"Do nothing out of selfish ambition or vain conceit. Rather, in humility value others above yourselves. — Philippians 2:3",
-        analysis:"You spoke to his identity (strong guy) before you addressed his behaviour (dominating). That's the order that produces transformation rather than defensiveness.",
-        analysisTa:"அவனது நடத்தையை (ஆதிக்கம்) முன்வைப்பதற்கு முன்பு அவனது அடையாளத்தை (வலிமையான பேர்) நோக்கி பேசினாய். அதுவே பாதுகாப்பின்மைக்கு பதிலாக மாற்றத்தை உருவாக்கும் வரிசை."
-      },
-      { letter:"B",
-        text:"Introduce a rule for everyone: one prayer per person, no advice-giving unless asked. Don't single him out.",
-        textTa:"எல்லாருக்கும் ஒரு விதி அறிமுகப்படுத்து: ஒருவருக்கு ஒரு ஜெபம், கேட்காமல் ஆலோசனை இல்லை. அவனை குறிப்பாக சொல்லாதே.",
-        type:"warn", icon:"📋",
-        title:"The structural fix", titleTa:"கட்டமைப்பு சரிசெய்தல்",
-        outcome:"It helps somewhat. But Vijay doesn't understand why the rule exists and feels slightly managed. He pulls back, but not in growth — in distance.",
-        outcomeTa:"சிறிது உதவுகிறது. ஆனால் விஜய் விதி ஏன் இருக்கிறது என்று புரியவில்லை, சிறிது நிர்வகிக்கப்படுவதாக உணர்கிறான். பின்வாங்குகிறான், ஆனால் வளர்ச்சியில் அல்ல — தூரத்தில்.",
-        ref:"Rules without relationship lead to rebellion.",
-        analysis:"Structure can manage a problem without solving it. Vijay needed a mirror, not a manager. The rule fixed the symptom while the root — pride — stayed untouched.",
-        analysisTa:"கட்டமைப்பு ஒரு பிரச்சனையை தீர்க்காமல் நிர்வகிக்கலாம். விஜயிற்கு ஒரு மேலாளர் அல்ல, ஒரு கண்ணாடி தேவைப்பட்டது."
-      },
-      { letter:"C",
-        text:"Do nothing — Vijay is a valuable member and confronting him risks losing him.",
-        textTa:"எதுவும் செய்யாதே — விஜய் மதிப்புமிக்க உறுப்பினன், அவனை எதிர்கொள்வது அவனை இழக்கும் அபாயம்.",
-        type:"bad", icon:"😶",
-        title:"The avoided conversation", titleTa:"தவிர்க்கப்பட்ட உரையாடல்",
-        outcome:"Two quieter members stop sharing anything real. One stops coming. The group slowly becomes Vijay's stage.",
-        outcomeTa:"இரண்டு அமைதியான உறுப்பினர்கள் உண்மையான எதையும் பகிர்வதை நிறுத்துகிறார்கள். ஒருவன் வருவதை நிறுத்துகிறான். குழு மெதுவாக விஜயின் மேடையாக மாறுகிறது.",
-        ref:"God opposes the proud but shows favour to the humble. — James 4:6",
-        analysis:"The shepherd who protects the dominant at the expense of the quiet has redefined the purpose of the group. The weakest sheep needed protection. You chose comfort instead.",
-        analysisTa:"அமைதியானவர்களின் விலையில் ஆதிக்கமுள்ளவனை காக்கும் மேய்ப்பன் குழுவின் நோக்கத்தை மாற்றியுள்ளான்."
-      }
-    ],
-    effects:{ good:{unity:15,shepherd:10,depth:20}, warn:{unity:5,shepherd:5,depth:5}, bad:{unity:-15,shepherd:-5,depth:-20} }
-  },
-  {
-    week:"Week 5", weekTa:"வாரம் 5",
-    title:"The Relapse", titleTa:"மீண்டும் விழுந்தான்",
-    topic:"pornography", topicLabel:"Sexual Addiction", topicLabelTa:"பாலியல் அடிமைத்தனம்",
-    avatar:"😔",
-    name:"Karthik, 19", nameTa:"கார்த்திக், 19",
-    role:"Same guy from Week 1 — your accountability partner", roleTa:"வாரம் 1 இன் அதே பேர் — உன் பொறுப்புணர்வு நண்பன்",
-    text:"Four weeks ago Karthik confessed his porn addiction. You've been meeting with him weekly. He texted you at midnight: 'I relapsed. I don't know why I'm telling you. I feel like a failure. Maybe I should just stop trying.' He looks like he hasn't slept.",
-    textTa:"நான்கு வாரங்களுக்கு முன்பு கார்த்திக் தன் போர்னோ அடிமைத்தனத்தை அறிக்கித்தான். நீ வாரந்தோறும் அவனோடு சந்தித்துக்கொண்டிருந்தாய். நள்ளிரவில் மெசேஜ்: 'மீண்டும் விழுந்தேன். ஏன் சொல்கிறோம் என்று தெரியவில்லை. தோல்வியாக உணர்கிறேன். ஒருவேளை முயற்சியை நிறுத்திவிட வேண்டும்.' தூக்கமில்லாதது போல் தெரிகிறான்.",
-    context:"Shame after relapse is when most guys disappear from faith communities entirely.",
-    contextTa:"மீண்டும் விழுந்த பிறகு வரும் வெட்கம்தான் பெரும்பாலான பேர் விசுவாச சமூகங்களிலிருந்து முற்றிலும் மறைகிற நேரம்.",
-    choices:[
-      { letter:"A",
-        text:"Say: 'You texting me at midnight is not failure — that's you fighting. Relapse is not the end of the story. Let's figure out what triggered it and build something stronger.'",
-        textTa:"'நள்ளிரவில் மெசேஜ் செய்தது தோல்வி அல்ல — அது நீ போரிடுகிறாய். மீண்டும் விழுவது கதையின் முடிவு அல்ல. என்ன தூண்டியது என்று புரிந்துகொண்டு வலிமையான ஒன்றை கட்டுவோம்.'",
-        type:"good", icon:"💪",
-        title:"Fighting, not failing", titleTa:"போரிடுகிறான், தோல்வியடைவதில்லை",
-        outcome:"Karthik comes to the session that evening. He shares briefly with the group. Three guys gather around him and pray. He says later it was the first time he felt his struggle was a battle, not an identity.",
-        outcomeTa:"கார்த்திக் அன்று மாலை கூட்டத்திற்கு வருகிறான். குழுவிடம் சுருக்கமாக பகிர்கிறான். மூன்று பேர் அவன் சுற்றும் கூடி ஜெபிக்கிறார்கள். பின்னர் சொல்கிறான்: தன் போராட்டம் ஒரு அடையாளமல்ல, போர் என்று உணர்ந்த முதல் முறை அது.",
-        ref:"Though a righteous man falls seven times, he rises again. — Proverbs 24:16",
-        analysis:"Midnight texts from struggling guys are invitations, not inconveniences. The way you framed relapse — as a battle, not a verdict — reframed his entire identity in that moment.",
-        analysisTa:"போராடும் பேரிடமிருந்து நள்ளிரவு மெசேஜ்கள் அழைப்புகள், தொந்தரவுகள் அல்ல. மீண்டும் விழுவதை — தீர்ப்பாக அல்ல, போராக — வடிவமைத்தது அவன் முழு அடையாளத்தையும் மாற்றியது."
-      },
-      { letter:"B",
-        text:"Reassure him and encourage him to keep trying, but don't bring it up in the group — keep it between you two.",
-        textTa:"ஊக்குவித்து, தொடர்ந்து முயற்சி என்று சொல், ஆனால் குழுவில் பேசாதே — உங்கள் இருவருக்கும் மட்டுமாக வைத்திரு.",
-        type:"warn", icon:"🤫",
-        title:"Private support", titleTa:"தனிப்பட்ட ஆதரவு",
-        outcome:"Karthik appreciates the privacy. But carrying it alone means he carries the shame alone too. Progress is slower. The group misses a chance to be the community it was created to be.",
-        outcomeTa:"கார்த்திக் தனியுரிமையை பாராட்டுகிறான். ஆனால் தனியாக சுமப்பது வெட்கத்தையும் தனியாக சுமப்பதாகிறது. குழு அது இருக்க வேண்டிய சமூகமாக ஆகும் வாய்ப்பை தவறவிடுகிறது.",
-        ref:"Confess your sins to one another and pray for one another, that you may be healed. — James 5:16",
-        analysis:"Privacy protected him from embarrassment. But James 5:16 says healing happens in community — not just between two people. You were a good friend. Could you have been a great shepherd?",
-        analysisTa:"தனியுரிமை அவனை சங்கடத்திலிருந்து காத்தது. ஆனால் யாக்கோபு 5:16 சொல்கிறது குணம் சமூகத்தில் நடக்கிறது — இரண்டு பேருக்கிடையில் மட்டுமல்ல."
-      },
-      { letter:"C",
-        text:"Be honest with him that you're worried — maybe he needs professional help, not just prayer cell.",
-        textTa:"அவனிடம் நேர்மையாக சொல் — ஒருவேளை தொழில்முறை உதவி தேவை, ஜெபக் குழு மட்டும் போதாது.",
-        type:"bad", icon:"↗️",
-        title:"The early handoff", titleTa:"முன்கூட்டிய கைமாற்றல்",
-        outcome:"Karthik hears: 'You're too broken for us.' He doesn't text again. He disappears from the group. He gets professional help eventually — but loses his community in the process.",
-        outcomeTa:"கார்த்திக் கேட்கிறான்: 'நீ எங்களுக்கு மிகவும் உடைந்தவன்.' மீண்டும் மெசேஜ் செய்வதில்லை. குழுவிலிருந்து மறைகிறான். இறுதியில் தொழில்முறை உதவி பெறுகிறான் — ஆனால் அந்த செயல்முறையில் சமூகத்தை இழக்கிறான்.",
-        ref:"We were made for both — professional support AND the body of Christ. One doesn't replace the other.",
-        analysis:"Professional help is good and necessary. But timing matters. At midnight, in crisis, after a relapse — what he needed first was to know you weren't leaving. You left.",
-        analysisTa:"தொழில்முறை உதவி நல்லது மற்றும் அவசியம். ஆனால் நேரம் முக்கியம். நள்ளிரவில், நெருக்கடியில், மீண்டும் விழுந்த பிறகு — முதலில் அவனுக்கு தேவையானது நீ போவதில்லை என்று தெரிவது. நீ போனாய்."
-      }
-    ],
-    effects:{ good:{unity:15,shepherd:5,depth:20}, warn:{unity:5,shepherd:5,depth:5}, bad:{unity:-20,shepherd:-5,depth:-15} }
-  },
-  {
-    week:"Week 6", weekTa:"வாரம் 6",
-    title:"The Drinking Habit", titleTa:"குடிக்கும் பழக்கம்",
-    topic:"substance", topicLabel:"Substance Use", topicLabelTa:"போதைப்பொருள் பயன்பாடு",
-    avatar:"🍺",
-    name:"Sam, 24", nameTa:"சாம், 24",
-    role:"Working youth — been in the group 3 years", roleTa:"வேலைக்கு போகும் இளைஞன் — 3 வருடமாக குழுவில்",
-    text:"After a group hangout, you notice Sam drinks heavily — not occasionally, but every time the group is together socially. In prayer cell he prays beautifully and seems spiritually solid. But three guys have pulled you aside separately to ask: 'Is Sam okay?' Sam himself has never brought it up.",
-    textTa:"குழு சந்திப்பிற்கு பிறகு, சாம் அதிகமாக குடிப்பதை கவனிக்கிறாய் — அவ்வப்போது அல்ல, குழு சமூகமாக கூடும் ஒவ்வொரு முறையும். ஜெபக் குழுவில் அழகாக ஜெபிக்கிறான், ஆவிக்குரியமாக உறுதியாக தெரிகிறான். ஆனால் மூன்று பேர் தனித்தனியாக: 'சாம் நலமாக இருக்கிறானா?'",
-    context:"He's a senior member. Everyone respects him. This is delicate.",
-    contextTa:"அவன் மூத்த உறுப்பினன். எல்லாரும் மதிக்கிறார்கள். இது நுட்பமானது.",
-    choices:[
-      { letter:"A",
-        text:"Go to Sam privately, with care: 'Hey brother, I've noticed something and I care about you too much to not say it. Can we talk honestly about how things have been lately?'",
-        textTa:"சாமிடம் தனிமையில், அக்கறையோடு: 'மச்சான், ஏதோ கவனித்தேன். உன்னை அக்கறைப்படுகிறேன், சொல்லாமல் இருக்க முடியாது. சமீபத்தில் எப்படி இருக்கிறது என்று நேர்மையாக பேசலாமா?'",
-        type:"good", icon:"🫂",
-        title:"The brave conversation", titleTa:"தைரியமான உரையாடல்",
-        outcome:"Sam is initially defensive. Then he admits he's been under brutal work pressure and drinking is how he switches off. He didn't think anyone noticed. He's relieved someone cared enough to ask.",
-        outcomeTa:"சாம் முதலில் பாதுகாப்புணர்வில் இருக்கிறான். பின் ஒப்புக்கொள்கிறான்: மோசமான வேலை அழுத்தத்தில் இருக்கிறான், குடித்தலே அவன் முடிக்கும் வழி. யாரும் கவனிக்கவில்லை என்று நினைத்தான். யாரோ கேட்கும் அளவு அக்கறைப்பட்டது என்று ஆசுவாசமடைகிறான்.",
-        ref:"Wounds from a friend can be trusted. — Proverbs 27:6",
-        analysis:"You chose the friendship of truth over the friendship of comfort. That's the harder and more loving choice. Three guys were worried. None of them did what you did.",
-        analysisTa:"சுகத்தின் நட்பை விட உண்மையின் நட்பை தேர்ந்தெடுத்தாய். அது கடினமான மற்றும் அதிக அன்பான தேர்வு. மூன்று பேர் கவலைப்பட்டார்கள். நீ செய்தது யாரும் செய்யவில்லை."
-      },
-      { letter:"B",
-        text:"Bring it up as a general topic in prayer cell — 'Let's talk about how we handle stress' — without naming Sam.",
-        textTa:"ஜெபக் குழுவில் பொதுவான தலைப்பாக எடு — 'அழுத்தத்தை எப்படி கையாள்கிறோம் என்று பேசுவோம்' — சாமின் பெயர் சொல்லாமல்.",
-        type:"warn", icon:"💬",
-        title:"The indirect approach", titleTa:"மறைமுக அணுகுமுறை",
-        outcome:"Sam doesn't connect the dots. The topic is good but the specific situation goes unaddressed. Three months later, his drinking is worse.",
-        outcomeTa:"சாம் இணைப்பை புரிந்துகொள்வதில்லை. தலைப்பு நல்லது ஆனால் குறிப்பிட்ட நிலைமை கவனிக்கப்படாமல் போகிறது. மூன்று மாதங்களுக்கு பிறகு குடிப்பழக்கம் மோசமாகிறது.",
-        ref:"If your brother or sister sins, go and point out their fault, just between the two of you. — Matthew 18:15",
-        analysis:"Indirect correction is often a way of doing something without risking anything. The topic reached the room but not the person. Sam deserved to be spoken to directly.",
-        analysisTa:"மறைமுக திருத்தம் பெரும்பாலும் எதையும் ஆபத்திலிடாமல் ஏதோ செய்வதற்கான வழி. தலைப்பு அறையை அடைந்தது, ஆனால் நபரை அல்ல."
-      },
-      { letter:"C",
-        text:"Leave it — what he does outside prayer cell is his business. He's a solid member and you don't want to damage that.",
-        textTa:"விட்டுவிடு — ஜெபக் குழுவிற்கு வெளியே அவன் செய்வது அவன் விஷயம். அவன் உறுதியான உறுப்பினன், அதை கெடுக்க விரும்பவில்லை.",
-        type:"bad", icon:"🙈",
-        title:"Respecting the wrong boundary", titleTa:"தவறான வரம்பை மதித்தல்",
-        outcome:"Sam's drinking becomes a known but unspoken issue. The group's integrity erodes. He eventually distances himself — partly from shame, partly because nobody cared enough to say anything.",
-        outcomeTa:"சாமின் குடிப்பழக்கம் தெரிந்த ஆனால் பேசப்படாத பிரச்சனையாகிறது. குழுவின் நேர்மை அரிக்கப்படுகிறது. இறுதியில் தூரப்படுகிறான் — ஓரளவு வெட்கத்தால், ஓரளவு யாரும் சொல்லும் அளவு அக்கறைப்படவில்லை என்பதால்.",
-        ref:"Do not get drunk on wine, which leads to debauchery. Instead, be filled with the Spirit. — Ephesians 5:18",
-        analysis:"Silence is never neutral. In a community of accountability, silence about a known struggle becomes complicity. The loving thing and the easy thing were different things here.",
-        analysisTa:"அமைதி ஒருபோதும் நடுநிலையில்லை. பொறுப்புணர்வின் சமூகத்தில், தெரிந்த போராட்டத்தைப் பற்றிய அமைதி கூட்டுக்குற்றமாகிறது."
-      }
-    ],
-    effects:{ good:{unity:10,shepherd:10,depth:15}, warn:{unity:0,shepherd:0,depth:-5}, bad:{unity:-15,shepherd:-10,depth:-15} }
-  },
-  {
-    week:"Week 7", weekTa:"வாரம் 7",
-    title:"The Comparison Trap", titleTa:"ஒப்பீட்டு கண்ணி",
-    topic:"pride", topicLabel:"Pride & Comparison", topicLabelTa:"பெருமை & ஒப்பீடு",
-    avatar:"😞",
-    name:"The Group", nameTa:"குழு",
-    role:"General atmosphere — it's been building for weeks", roleTa:"பொது சூழல் — வாரங்களாக கட்டமைக்கப்பட்டு வருகிறது",
-    text:"You've noticed the group's prayer has subtly shifted. Guys are sharing achievements more than struggles. Prayers sound like performance reviews. A newer member said quietly: 'I feel like I'm not successful enough to pray here.' The room feels more like a leaderboard than a brotherhood.",
-    textTa:"குழுவின் ஜெபம் நுட்பமாக மாறியதை கவனித்திருக்கிறாய். பேர்கள் போராட்டங்களை விட சாதனைகளை பகிர்கிறார்கள். ஜெபங்கள் செயல்திறன் மதிப்பாய்வுகள் போல் ஒலிக்கின்றன. புதிய உறுப்பினன் மெதுவாக சொன்னான்: 'இங்கே ஜெபிக்க நான் போதுமான வெற்றி பெறவில்லை போல உணர்கிறேன்.'",
-    context:"Nobody meant for this to happen. But it did. And you need to name it.",
-    contextTa:"யாரும் இதை நடக்க வைக்க விரும்பவில்லை. ஆனால் நடந்தது. நீ இதை பெயரிட வேண்டும்.",
-    choices:[
-      { letter:"A",
-        text:"Start the session by saying: 'I want to be honest — I've noticed our prayers have become more about what we've done than who we are. Tonight, only share something you're struggling with or afraid of.'",
-        textTa:"கூட்டத்தை இப்படி தொடங்கு: 'நேர்மையாக சொல்ல விரும்புகிறேன் — நம் ஜெபங்கள் நாம் யார் என்பதை விட நாம் என்ன செய்தோம் என்பதை பற்றியதாக மாறியதை கவனித்தேன். இன்று இரவு, நீ போராடுவது அல்லது பயப்படுவது மட்டும் பகிர்.'",
-        type:"good", icon:"🔄",
-        title:"The honest reset", titleTa:"நேர்மையான மீட்டமைப்பு",
-        outcome:"Silence. Then one guy shares he failed his exams and has been lying to his parents. Then another says he's terrified he's not good enough for anything. The room becomes, for the first time in weeks, a real place.",
-        outcomeTa:"அமைதி. பின் ஒருவன் தேர்வில் தோல்வியடைந்து பெற்றோரிடம் பொய் சொல்கிறான் என்று பகிர்கிறான். இன்னொருவன் எந்த விஷயத்திற்கும் போதுமான தகுதி இல்லை என்ற பயம் என்று சொல்கிறான். வாரங்களில் முதல் முறையாக அறை உண்மையான இடமாகிறது.",
-        ref:"God opposes the proud but gives grace to the humble. — 1 Peter 5:5",
-        analysis:"You named the drift before it became the culture. That took courage — especially when you yourself may have enjoyed the group's positive energy. Prophetic leadership is often inconvenient.",
-        analysisTa:"கலாச்சாரமாவதற்கு முன்பு நழுவலை பெயரிட்டாய். அது தைரியம் தேவைப்பட்டது — குறிப்பாக நீயும் குழுவின் நேர்மறை ஆற்றலை ரசித்திருக்கலாம்."
-      },
-      { letter:"B",
-        text:"Let it run its course — seasons change, maybe next week will be more authentic naturally.",
-        textTa:"அதன் போக்கில் விடு — சீதோஷ்ணங்கள் மாறும், ஒருவேளை அடுத்த வாரம் இயல்பாக அதிக உண்மையானதாக இருக்கும்.",
-        type:"warn", icon:"⏳",
-        title:"Waiting it out", titleTa:"காத்திருப்பு",
-        outcome:"It doesn't self-correct. The newer member stops coming. Two others follow. The group drifts toward being a social club for high-achievers.",
-        outcomeTa:"தானாக சரியாவதில்லை. புதிய உறுப்பினன் வருவதை நிறுத்துகிறான். இரண்டு பேர் பின்பற்றுகிறார்கள். குழு உயர் சாதிப்பாளர்களுக்கான சமூக கிளப்பாக நழுவுகிறது.",
-        ref:"Do not conform to the pattern of this world. — Romans 12:2",
-        analysis:"Culture doesn't drift back to health on its own. It drifts further from it. The shepherd's job is to notice drift early and name it — not wait for it to self-correct.",
-        analysisTa:"கலாச்சாரம் தானாக ஆரோக்கியத்திற்கு நழுவுவதில்லை. அதிலிருந்து மேலும் நழுவுகிறது. நழுவலை முன்கூட்டியே கவனித்து பெயரிடுவது மேய்ப்பனின் வேலை."
-      },
-      { letter:"C",
-        text:"Ask the newer member to 'be more vulnerable' in sessions to model it for others.",
-        textTa:"புதிய உறுப்பினனை கூட்டங்களில் 'அதிக பாதிப்படையக்கூடியதாக' இரு என்று கேள், மற்றவர்களுக்கு முன்னுதாரணமாக.",
-        type:"bad", icon:"😬",
-        title:"Placing the burden on the wrong person", titleTa:"தவறான நபர் மேல் சுமை",
-        outcome:"The newer member feels singled out and exposed. He leaves feeling the problem was his inability to perform — which was exactly what was wrong with the group in the first place.",
-        outcomeTa:"புதிய உறுப்பினன் குறிப்பாக இலக்காக்கப்பட்டதாகவும் அம்பலப்படுத்தப்பட்டதாகவும் உணர்கிறான். அவனுடைய செயல்படும் இயலாமை பிரச்சனை என்று உணர்ந்து போகிறான் — முதலில் குழுவில் தவறு என்னவோ அதுவே.",
-        ref:"The shepherd protects the weakest sheep first. — Ezekiel 34:16",
-        analysis:"You asked the most vulnerable person to fix a problem created by the least vulnerable. That's the opposite of pastoral care. The weakest sheep doesn't carry the flock.",
-        analysisTa:"குறைந்த பாதிப்படையக்கூடியவர்களால் உருவாக்கப்பட்ட பிரச்சனையை சரிசெய்ய மிக பாதிப்படையக்கூடியவரை கேட்டாய். அது மேய்ப்பன் அக்கறையின் எதிர்ப்பக்கம்."
-      }
-    ],
-    effects:{ good:{unity:20,shepherd:10,depth:25}, warn:{unity:-10,shepherd:0,depth:-15}, bad:{unity:-20,shepherd:-5,depth:-20} }
-  },
-  {
-    week:"Week 8", weekTa:"வாரம் 8",
-    title:"Your Own Secret", titleTa:"உன் சொந்த இரகசியம்",
-    topic:"general", topicLabel:"The Shepherd's Struggle", topicLabelTa:"மேய்ப்பனின் போராட்டம்",
-    avatar:"🪫",
-    name:"You", nameTa:"நீ",
-    role:"Shepherd — Week 8", roleTa:"மேய்ப்பன் — வாரம் 8",
-    text:"You've been leading through everyone else's struggles. But tonight, before the session, you're sitting alone and you realise: you haven't been honest with anyone about what you're going through. You've been watching content you're not proud of. You've been envious of another leader's group. You've told yourself you'll deal with it 'after things settle down.' They haven't.",
-    textTa:"எல்லாரின் போராட்டங்கள் வழியாக வழிநடத்தி வந்தாய். ஆனால் இன்று இரவு, கூட்டத்திற்கு முன்பு தனியே அமர்ந்திருக்கிறாய், உணர்கிறாய்: நீ என்ன செல்கிறாய் என்பதை யாரிடமும் நேர்மையாக சொல்லவில்லை. பெருமைப்படாத தகவல் பார்த்திருக்கிறாய். இன்னொரு தலைவரின் குழுவை பொறாமையாக பார்த்திருக்கிறாய்.",
-    context:"This is the hardest scenario. Because the shepherd has his own battle.",
-    contextTa:"இது மிகவும் கடினமான நிகழ்வு. ஏனென்றால் மேய்ப்பனுக்கும் சொந்த போர் இருக்கிறது.",
-    choices:[
-      { letter:"A",
-        text:"Open the session by being honest: 'Before we pray for each other tonight, I need to be real. I'm struggling with some things myself. I'm going to share them — not because I have it together, but because I want this to be a place where none of us has to pretend.'",
-        textTa:"நேர்மையாக கூட்டத்தை தொடங்கு: 'இன்று இரவு ஒருவருக்காக ஒருவர் ஜெபிப்பதற்கு முன்பு, நான் உண்மையாக இருக்க வேண்டும். நானே சில விஷயங்களில் போராடுகிறேன். பகிர்வேன் — எல்லாம் சரியாக இருக்கிறது என்பதால் அல்ல, இங்கே யாரும் நடிக்க வேண்டியதில்லை என்று விரும்புவதால்.'",
-        type:"good", icon:"🔓",
-        title:"The shepherd becomes a brother", titleTa:"மேய்ப்பன் சகோதரனாகிறான்",
-        outcome:"The room shifts in a way nothing else could have produced. Two guys say it's the most powerful thing they've witnessed in a leader. You leave that night lighter than you've been in months.",
-        outcomeTa:"வேறெதுவும் உருவாக்க முடியாத விதத்தில் அறை மாறுகிறது. இரண்டு பேர் ஒரு தலைவரிடம் இதுவரை பார்த்த மிகவும் வல்லமையான விஷயம் என்று சொல்கிறார்கள். மாதங்களில் இல்லாத ஆறுதலோடு அன்று இரவு போகிறாய்.",
-        ref:"Therefore confess your sins to each other and pray for each other so that you may be healed. — James 5:16",
-        analysis:"The shepherd who can be vulnerable destroys the illusion that you need to be fixed before you can belong. That single act of honesty gave every person in the room permission to be human.",
-        analysisTa:"பாதிப்படைய முடியும் மேய்ப்பன், சேர்வதற்கு முன்பு சரியாக இருக்க வேண்டும் என்ற மாயத்தை அழிக்கிறான். அந்த ஒரே நேர்மை செயல் அறையில் உள்ள ஒவ்வொருவருக்கும் மனிதனாக இருக்க அனுமதி கொடுத்தது."
-      },
-      { letter:"B",
-        text:"Lead the session normally, then go home and pray about your own stuff privately. Deal with it yourself first.",
-        textTa:"கூட்டத்தை சாதாரணமாக நடத்து, பின் வீடு போய் சொந்த விஷயங்களை தனிமையில் ஜெபி. முதலில் தனியே கையாள்.",
-        type:"warn", icon:"🎭",
-        title:"Alone with it again", titleTa:"மீண்டும் தனியே",
-        outcome:"Another week passes. The weight doesn't lift. The group continues — well-led on the outside, hollow on the inside for you. The isolation grows.",
-        outcomeTa:"இன்னொரு வாரம் கடந்துவிடுகிறது. சுமை குறைவதில்லை. குழு தொடர்கிறது — வெளியில் நன்றாக வழிநடத்தப்பட்டது, உள்ளில் வெறுமையாக. தனிமை வளர்கிறது.",
-        ref:"It is not good for man to be alone. — Genesis 2:18",
-        analysis:"Leading others while hiding your own struggle doesn't make you strong — it makes you a performance. The gap between your public role and private reality will widen until it breaks.",
-        analysisTa:"சொந்த போராட்டத்தை மறைத்து மற்றவர்களை வழிநடத்துவது உன்னை வலிமையாக ஆக்குவதில்லை — ஒரு நடிப்பாக ஆக்குகிறது."
-      },
-      { letter:"C",
-        text:"Push through. The group depends on you being the strong one. Your job is to hold the space for them, not burden them with your problems.",
-        textTa:"தள்ளிக்கொண்டு போ. குழு உன்னை வலிமையானவனாக நம்புகிறது. அவர்களுக்கு இடம் வைத்திருப்பது உன் வேலை, உன் பிரச்சனைகளால் அவர்களை சுமைப்படுத்துவது அல்ல.",
-        type:"bad", icon:"⚠️",
-        title:"The crumbling foundation", titleTa:"சரியும் அடித்தளம்",
-        outcome:"Three weeks later you cancel a session without explanation. A month after that, you step down, burned out and isolated. Nobody saw it coming — because you made sure they wouldn't.",
-        outcomeTa:"மூன்று வாரங்களுக்கு பிறகு விளக்கமில்லாமல் ஒரு கூட்டத்தை ரத்து செய்கிறாய். ஒரு மாதத்திற்கு பிறகு, எரிந்துவிட்டு தனிமையாக பதவியிலிருந்து விலகுகிறாய். யாரும் வருவதை பார்க்கவில்லை — நீ உறுதிசெய்தாய் என்பதால்.",
-        ref:"Even Moses needed Aaron and Hur to hold his arms up. — Exodus 17:12",
-        analysis:"The strongest-seeming shepherd is often the most isolated one. Strength that has no witnesses eventually becomes unsustainable. Moses needed Hur and Aaron. What made you think you didn't?",
-        analysisTa:"மிகவும் வலிமையாக தெரியும் மேய்ப்பன் பெரும்பாலும் மிகவும் தனிமையானவன். சாட்சிகளற்ற வலிமை இறுதியில் நிலைக்க முடியாதது. மோசேக்கு கூர் மற்றும் ஆரோன் தேவைப்பட்டார்கள். உனக்கு தேவையில்லை என்று என்ன நினைத்தாய்?"
-      }
-    ],
-    effects:{ good:{unity:20,shepherd:25,depth:30}, warn:{unity:0,shepherd:-15,depth:-10}, bad:{unity:-10,shepherd:-30,depth:-20} }
-  }
-];
-
-const topicClasses = {
-  pornography:'topic-porn', anger:'topic-anger',
-  pride:'topic-pride', substance:'topic-substance', general:'topic-general'
-};
-
-// ─────────────────────────────────────────────
-//  GAME STATE
-// ─────────────────────────────────────────────
-let state = {
-  current:0, unity:70, shepherd:75, depth:50,
-  good:0, warn:0, bad:0, answered:false,
-  log:[] // {scenarioIdx, choiceIdx, type, week, title}
-};
-
-function clamp(v){ return Math.min(100,Math.max(0,v)); }
-
-function applyLangUI(){
-  const u = lang === 'ta' ? UI.ta : UI.en;
-  document.getElementById('lbl-unity').textContent   = u.unity;
-  document.getElementById('lbl-shepherd').textContent= u.shepherd;
-  document.getElementById('lbl-depth').textContent   = u.depth;
-}
-
-function updateBars(){
-  const u=clamp(state.unity), s=clamp(state.shepherd), d=clamp(state.depth);
-  ['unity','shepherd','depth'].forEach((k,i)=>{
-    const vals=[u,s,d]; const v=vals[i];
-    document.getElementById('bar-'+k).style.width=v+'%';
-    document.getElementById('val-'+k).textContent=v+'%';
-  });
-  document.getElementById('bar-unity').style.background    = u>60?'var(--good)':u>30?'var(--warn)':'var(--bad)';
-  document.getElementById('bar-shepherd').style.background = s>60?'var(--accent)':s>30?'var(--warn)':'var(--bad)';
-  document.getElementById('bar-depth').style.background    = d>60?'#8b7fd4':d>30?'var(--warn)':'var(--bad)';
-}
-
-function buildDots(){
-  const wrap=document.getElementById('progress-dots');
-  wrap.innerHTML='';
-  scenarios.forEach((_,i)=>{
-    const d=document.createElement('div');
-    d.className='dot'+(i===state.current?' active':i<state.current?' done':'');
-    wrap.appendChild(d);
-  });
+// ── GAME ──────────────────────────────────────────────
+function startGame(){
+  Object.assign(gs,{current:0,unity:70,shepherd:75,depth:50,good:0,warn:0,bad:0,answered:false,log:[]});
+  showScreen('screen-game');
+  renderScenario();
 }
 
 function renderScenario(){
-  applyLangUI();
-  const s=scenarios[state.current];
-  const isTa = lang==='ta';
-  const isBoth = lang==='both';
+  const isTa=lang==='ta', isBoth=lang==='both';
+  const enS=enData.scenarios[gs.current], taS=taData.scenarios[gs.current];
+  const s=isTa?taS:enS;
 
-  document.getElementById('week-num').textContent  = isTa ? s.weekTa : s.week;
-  document.getElementById('week-title').textContent= isTa ? s.titleTa : s.title;
+  document.getElementById('lbl-u').textContent=isTa?'சகோதரத்துவம்':'Brotherhood';
+  document.getElementById('lbl-s').textContent=isTa?'மேய்ப்பன் நலன்':'Shepherd Health';
+  document.getElementById('lbl-d').textContent=isTa?'நேர்மை அளவு':'Honesty Level';
+  document.getElementById('wk-num').textContent=s.week;
+  document.getElementById('wk-title').textContent=s.title;
+  const topEl=document.getElementById('sc-topic');
+  topEl.textContent=s.topicLabel; topEl.className='topic-tag '+(TC[s.topic]||'topic-general');
+  document.getElementById('sc-av').textContent=s.avatar;
+  document.getElementById('sc-name').textContent=s.name;
+  document.getElementById('sc-role').textContent=s.role;
+  document.getElementById('sc-text').textContent=isTa?taS.scenarioText:enS.scenarioText;
+  const taEl=document.getElementById('sc-text-ta');
+  if(isBoth){taEl.textContent=taS.scenarioText;taEl.style.display='block';}else{taEl.style.display='none';}
+  document.getElementById('sc-ctx').textContent=isTa?taS.context:enS.context;
 
-  const topicEl=document.getElementById('sc-topic');
-  topicEl.textContent=(isTa?s.topicLabelTa:s.topicLabel);
-  topicEl.className='topic-tag '+(topicClasses[s.topic]||'topic-general');
-
-  document.getElementById('sc-avatar').textContent=s.avatar;
-  document.getElementById('sc-name').textContent  = isTa ? s.nameTa : s.name;
-  document.getElementById('sc-role').textContent  = isTa ? s.roleTa : s.role;
-  document.getElementById('sc-text').textContent  = isTa ? s.textTa : s.text;
-  const taTxt=document.getElementById('sc-text-ta');
-  if(isBoth){ taTxt.textContent=s.textTa; taTxt.style.display='block'; }
-  else { taTxt.style.display='none'; }
-  document.getElementById('sc-context').textContent = isTa ? s.contextTa : s.context;
-
-  const wrap=document.getElementById('choices-wrap');
-  wrap.innerHTML='';
-  s.choices.forEach((c,i)=>{
-    const btn=document.createElement('button');
-    btn.className='choice-btn';
-    const mainText = isTa ? c.textTa : c.text;
-    const taSpan   = isBoth ? `<div style="font-family:'Noto Serif Tamil',serif;font-size:12px;color:#8b85a8;margin-top:6px;line-height:1.7;">${c.textTa}</div>` : '';
-    btn.innerHTML=`<span class="choice-letter">${c.letter}</span><span class="choice-text">${mainText}${taSpan}</span>`;
-    btn.onclick=()=>choose(i);
-    wrap.appendChild(btn);
+  const wrap=document.getElementById('choices-wrap'); wrap.innerHTML='';
+  enS.choices.forEach((enC,i)=>{
+    const taC=taS.choices[i]; const c=isTa?taC:enC;
+    const btn=document.createElement('button'); btn.className='choice-btn';
+    const taSpan=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:12px;color:#8b85a8;margin-top:6px;line-height:1.8;">${taC.text}</div>`:'';
+    btn.innerHTML=`<span class="choice-letter">${c.letter}</span><span class="choice-text">${c.text}${taSpan}</span>`;
+    btn.onclick=()=>choose(i); wrap.appendChild(btn);
   });
 
   document.getElementById('outcome-panel').classList.remove('show','good','warn','bad');
   document.getElementById('btn-next').classList.remove('show');
-  state.answered=false;
-  buildDots();
-  updateBars();
+  gs.answered=false;
+  buildDots(); updateBars();
 }
 
 function choose(idx){
-  if(state.answered) return;
-  state.answered=true;
-  const isTa=lang==='ta';
-  const isBoth=lang==='both';
-  const s=scenarios[state.current];
-  const c=s.choices[idx];
-  const fx=s.effects[c.type];
-  state.unity+=fx.unity; state.shepherd+=fx.shepherd; state.depth+=fx.depth;
-  if(c.type==='good') state.good++;
-  else if(c.type==='warn') state.warn++;
-  else state.bad++;
-  state.log.push({scenarioIdx:state.current, choiceIdx:idx, type:c.type});
+  if(gs.answered)return; gs.answered=true;
+  const isTa=lang==='ta', isBoth=lang==='both';
+  const enS=enData.scenarios[gs.current], taS=taData.scenarios[gs.current];
+  const enC=enS.choices[idx], taC=taS.choices[idx], c=isTa?taC:enC;
+  const fx=enC.effects;
+  gs.unity+=fx.unity; gs.shepherd+=fx.shepherd; gs.depth+=fx.depth;
+  if(enC.type==='good')gs.good++; else if(enC.type==='warn')gs.warn++; else gs.bad++;
+  gs.log.push({si:gs.current,ci:idx,type:enC.type});
 
-  document.querySelectorAll('.choice-btn').forEach((btn,i)=>{
-    if(i===idx) btn.classList.add('selected-'+c.type);
-    btn.style.pointerEvents='none';
-    btn.style.opacity=i===idx?'1':'0.35';
+  document.querySelectorAll('.choice-btn').forEach((b,i)=>{
+    if(i===idx)b.classList.add('sel-'+enC.type);
+    b.style.pointerEvents='none'; b.style.opacity=i===idx?'1':'0.35';
   });
 
   const panel=document.getElementById('outcome-panel');
-  panel.className='outcome-panel show '+c.type;
-  document.getElementById('out-icon').textContent=c.icon;
-  document.getElementById('out-title').textContent = isTa ? c.titleTa : c.title;
-  document.getElementById('out-text').textContent  = isTa ? c.outcomeTa : c.outcome;
-  const taOutcome=document.getElementById('out-text-ta');
-  if(isBoth){ taOutcome.textContent=c.outcomeTa; taOutcome.style.display='block'; }
-  else { taOutcome.style.display='none'; }
-  document.getElementById('out-ref').textContent=c.ref;
-
+  panel.className='outcome-panel show '+enC.type;
+  document.getElementById('out-icon').textContent=enC.icon;
+  document.getElementById('out-title').textContent=c.outcomeTitle;
+  document.getElementById('out-text').textContent=c.outcomeText;
+  document.getElementById('out-ref').textContent=enC.ref;
   updateBars();
-  const nextBtn=document.getElementById('btn-next');
-  const isTaUI=lang==='ta';
-  nextBtn.textContent=state.current<scenarios.length-1
-    ?(isTaUI?UI.ta.nextWeek:UI.en.nextWeek)
-    :(isTaUI?UI.ta.seeResults:UI.en.seeResults);
-  nextBtn.classList.add('show');
+  const nb=document.getElementById('btn-next');
+  nb.textContent=gs.current<enData.scenarios.length-1?(isTa?'அடுத்த வாரம் →':'Next Week →'):(isTa?'முடிவுகளை பார் →':'See Results →');
+  nb.classList.add('show');
 }
 
 function nextScenario(){
-  state.current++;
-  if(state.current>=scenarios.length){ showEnd(); }
-  else { renderScenario(); window.scrollTo({top:0,behavior:'smooth'}); }
+  gs.current++;
+  if(gs.current>=enData.scenarios.length)showEnd();
+  else{renderScenario();window.scrollTo({top:0,behavior:'smooth'});}
 }
 
-// ─────────────────────────────────────────────
-//  END SCREEN
-// ─────────────────────────────────────────────
+function buildDots(){
+  const w=document.getElementById('progress-dots'); w.innerHTML='';
+  enData.scenarios.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i===gs.current?' active':i<gs.current?' done':'');
+    w.appendChild(d);
+  });
+}
+
+function updateBars(){
+  const u=clamp(gs.unity),s=clamp(gs.shepherd),d=clamp(gs.depth);
+  const set=(id,v,col)=>{document.getElementById('bar-'+id).style.cssText=`width:${v}%;background:${col}`;document.getElementById('val-'+id).textContent=v+'%';};
+  set('u',u,u>60?'var(--good)':u>30?'var(--warn)':'var(--bad)');
+  set('s',s,s>60?'var(--accent)':s>30?'var(--warn)':'var(--bad)');
+  set('d',d,d>60?'#8b7fd4':d>30?'var(--warn)':'var(--bad)');
+}
+
+// ── END ───────────────────────────────────────────────
 function showEnd(){
-  document.getElementById('screen-game').classList.remove('active');
-  document.getElementById('screen-end').classList.add('active');
-  const u=clamp(state.unity), s=clamp(state.shepherd), d=clamp(state.depth);
-  const avg=Math.round((u+s+d)/3);
+  showScreen('screen-end');
   const isTa=lang==='ta';
-
-  document.getElementById('end-good').textContent=state.good;
-  document.getElementById('end-warn').textContent=state.warn;
-  document.getElementById('end-bad').textContent=state.bad;
-  document.getElementById('end-lbl-wise').textContent = isTa?UI.ta.wise:UI.en.wise;
-  document.getElementById('end-lbl-caut').textContent = isTa?UI.ta.cautious:UI.en.cautious;
-  document.getElementById('end-lbl-miss').textContent = isTa?UI.ta.missed:UI.en.missed;
-
-  const results = {
-    en: [
-      {e:'🔥',t:'A True Brother',d:'Your group became what every prayer cell dreams of being — a place where men are actually honest with each other. That is rare. Guard it.'},
-      {e:'🕯️',t:'The Faithful Shepherd',d:'The group is real and growing. Not perfect — but the brothers trust each other. Keep building.'},
-      {e:'🌑',t:'Still in the Fight',d:'Some things went sideways. Members drifted. But the prayer cell still exists. Nehemiah rebuilt walls from rubble. So can you.'},
-      {e:'💔',t:'The Room Went Cold',d:"Shame won more rounds than grace did. But the story isn't over. Peter denied Jesus three times and became the rock anyway."}
-    ],
-    ta: [
-      {e:'🔥',t:'உண்மையான சகோதரன்',d:'உன் குழு ஒவ்வொரு ஜெபக் குழுவும் கனவு காண்பதாக ஆனது — ஆண்கள் உண்மையில் ஒருவரிடமொருவர் நேர்மையாக இருக்கும் இடம். அது அரிது. காத்திரு.'},
-      {e:'🕯️',t:'நம்பகமான மேய்ப்பன்',d:'குழு உண்மையானது மற்றும் வளர்கிறது. சரியானதில்லை — ஆனால் சகோதரர்கள் ஒருவரை ஒருவர் நம்புகிறார்கள். தொடர்ந்து கட்டி.'},
-      {e:'🌑',t:'இன்னும் போரிடுகிறான்',d:'சில விஷயங்கள் தவறாக போனது. உறுப்பினர்கள் நழுவினார்கள். ஆனால் ஜெபக் குழு இன்னும் இருக்கிறது. நெகேமியா சிதைவிலிருந்து மதில் கட்டினான். நீயும் முடியும்.'},
-      {e:'💔',t:'அறை குளிர்ந்துவிட்டது',d:'கருணையை விட வெட்கம் அதிக சுற்றுகள் வென்றது. ஆனால் கதை முடியவில்லை. பேதுரு இயேசுவை மூன்று முறை மறுதலித்தான், பாறையாக ஆனான்.'}
-    ]
-  };
-
-  const r = isTa ? results.ta : results.en;
-  const idx = avg>=75?0:avg>=55?1:avg>=35?2:3;
+  const u=clamp(gs.unity),s=clamp(gs.shepherd),d=clamp(gs.depth);
+  const avg=Math.round((u+s+d)/3);
+  document.getElementById('e-good').textContent=gs.good;
+  document.getElementById('e-warn').textContent=gs.warn;
+  document.getElementById('e-bad').textContent=gs.bad;
+  document.getElementById('e-lbl-g').textContent=isTa?'ஞானம்':'Wise';
+  document.getElementById('e-lbl-w').textContent=isTa?'எச்சரிக்கை':'Cautious';
+  document.getElementById('e-lbl-b').textContent=isTa?'தவறவிட்டது':'Missed';
+  const R={en:[
+    {e:'🔥',t:'A True Brother',d:'Your group became what every prayer cell dreams of being — a place where men are actually honest with each other. That is rare.'},
+    {e:'🕯️',t:'The Faithful Shepherd',d:'The group is real and growing. Not perfect — but the brothers trust each other. Keep building.'},
+    {e:'🌑',t:'Still in the Fight',d:'Some things went sideways. But the prayer cell still exists. Nehemiah rebuilt walls from rubble. So can you.'},
+    {e:'💔',t:'The Room Went Cold',d:"Shame won more rounds than grace. But the story isn't over. Peter denied Jesus three times and became the rock anyway."}
+  ],ta:[
+    {e:'🔥',t:'உண்மையான சகோதரன்',d:'உன் குழு ஒவ்வொரு ஜெபக்குழுவும் கனவு காண்பதாக ஆனது. அது அரிது.'},
+    {e:'🕯️',t:'நம்பகமான மேய்ப்பன்',d:'குழு உண்மையானது மற்றும் வளர்கிறது. சகோதரர்கள் ஒருவரை ஒருவர் நம்புகிறார்கள்.'},
+    {e:'🌑',t:'இன்னும் போரிடுகிறான்',d:'சில விஷயங்கள் தவறாக போனது. ஆனால் ஜெபக்குழு இன்னும் இருக்கிறது.'},
+    {e:'💔',t:'அறை குளிர்ந்துவிட்டது',d:'கருணையை விட வெட்கம் அதிக சுற்றுகள் வென்றது. ஆனால் கதை முடியவில்லை.'}
+  ]};
+  const r=isTa?R.ta:R.en;
+  const idx=avg>=75?0:avg>=55?1:avg>=35?2:3;
   document.getElementById('end-emoji').textContent=r[idx].e;
   document.getElementById('end-title').textContent=r[idx].t;
   document.getElementById('end-desc').textContent=r[idx].d;
-
-  document.getElementById('btn-restart').textContent = isTa?UI.ta.playAgain:UI.en.playAgain;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ─────────────────────────────────────────────
-//  REPORT GENERATION
-// ─────────────────────────────────────────────
-function generateReport(reportLang){
-  const isTa = reportLang==='ta';
-  const isBoth= reportLang==='both';
-  const u = isTa ? UI.ta : UI.en;
+// ── REPORT ────────────────────────────────────────────
+function generateReport(rl){
+  const isTa=rl==='ta', isBoth=rl==='both';
+  showScreen('screen-report');
+  document.getElementById('rpt-h-title').textContent=isTa?'மேய்ப்பனின் அறிக்கை':"Shepherd's Report";
 
-  document.getElementById('screen-end').classList.remove('active');
-  document.getElementById('screen-report').classList.add('active');
+  const avg=Math.round((clamp(gs.unity)+clamp(gs.shepherd)+clamp(gs.depth))/3);
+  const si=avg>=75?0:avg>=55?1:avg>=35?2:3;
+  const SM={en:[
+    {e:'🔥',t:'A True Brother',d:'You led with honesty, vulnerability, and grace.'},
+    {e:'🕯️',t:'The Faithful Shepherd',d:'Mostly wise choices. A few missed moments, but the group remains real.'},
+    {e:'🌑',t:'Still in the Fight',d:'Several difficult moments went sideways. But the prayer cell survived.'},
+    {e:'💔',t:'The Room Went Cold',d:'Shame outweighed grace. Real life has second chances.'}
+  ],ta:[
+    {e:'🔥',t:'உண்மையான சகோதரன்',d:'நேர்மை, பாதிப்படைவு, கருணையோடு வழிநடத்தினாய்.'},
+    {e:'🕯️',t:'நம்பகமான மேய்ப்பன்',d:'பெரும்பாலும் ஞானமான தேர்வுகள். குழு உண்மையானதாக வளர்கிறது.'},
+    {e:'🌑',t:'இன்னும் போரிடுகிறான்',d:'பல கடினமான தருணங்கள் தவறாக போனது.'},
+    {e:'💔',t:'அறை குளிர்ந்துவிட்டது',d:'நிஜ வாழ்வில் இரண்டாவது வாய்ப்புகள் இருக்கின்றன.'}
+  ]};
+  const sm=isTa?SM.ta[si]:SM.en[si];
+  const wL=isTa?'ஞானம்':'Wise', cL=isTa?'எச்சரிக்கை':'Cautious', mL=isTa?'தவறவிட்டது':'Missed';
+  const ycL=isTa?'உன் தேர்வு':'Your Choice', anL=isTa?'பகுப்பாய்வு':'Analysis';
+  const RL={good:isTa?'ஞானமான தேர்வு':'Wise Choice',warn:isTa?'எச்சரிக்கை':'Cautious',bad:isTa?'தவறவிட்டது':'Missed It'};
 
-  document.getElementById('rb-label').textContent  = u.backToResults;
-  document.getElementById('rpt-title').textContent = u.reportTitle;
-  document.getElementById('rpt-sub').textContent   = u.reportSub;
-
-  const body = document.getElementById('report-body');
-  body.innerHTML = '';
-
-  // Summary banner
-  const avg = Math.round((clamp(state.unity)+clamp(state.shepherd)+clamp(state.depth))/3);
-  const summaries = {
-    en:[
-      {e:'🔥',t:'A True Brother',d:'You led with honesty, vulnerability, and grace. The group became what it was meant to be.'},
-      {e:'🕯️',t:'The Faithful Shepherd',d:'Mostly wise choices. A few missed moments, but the group remains real and growing.'},
-      {e:'🌑',t:'Still in the Fight',d:'Several difficult moments went sideways. But the prayer cell survived. Rebuild from here.'},
-      {e:'💔',t:'The Room Went Cold',d:'Shame outweighed grace in too many moments. The good news: this is a simulator. Real life has second chances.'}
-    ],
-    ta:[
-      {e:'🔥',t:'உண்மையான சகோதரன்',d:'நேர்மை, பாதிப்படைவு, கருணையோடு வழிநடத்தினாய். குழு அது இருக்க வேண்டியதாக ஆனது.'},
-      {e:'🕯️',t:'நம்பகமான மேய்ப்பன்',d:'பெரும்பாலும் ஞானமான தேர்வுகள். சில தவறவிட்ட தருணங்கள், ஆனால் குழு உண்மையானதாக வளர்கிறது.'},
-      {e:'🌑',t:'இன்னும் போரிடுகிறான்',d:'பல கடினமான தருணங்கள் தவறாக போனது. ஆனால் ஜெபக் குழு தப்பித்தது. இங்கிருந்து மீண்டும் கட்டு.'},
-      {e:'💔',t:'அறை குளிர்ந்துவிட்டது',d:'பல தருணங்களில் கருணையை விட வெட்கம் வென்றது. நல்ல செய்தி: இது ஒரு சிமுலேட்டர். நிஜ வாழ்வில் இரண்டாவது வாய்ப்புகள் இருக்கின்றன.'}
-    ]
-  };
-  const si = avg>=75?0:avg>=55?1:avg>=35?2:3;
-  const sm = isTa ? summaries.ta[si] : summaries.en[si];
-
-  body.innerHTML += `<div class="report-summary">
-    <div class="report-summary-icon">${sm.e}</div>
-    <div class="report-summary-text">
-      <h3>${sm.t}</h3>
-      <p>${sm.d}</p>
-    </div>
+  let html=`<div class="rpt-summary">
+    <div class="rpt-sum-icon">${sm.e}</div>
+    <div class="rpt-sum-text"><h3>${sm.t}</h3><p>${sm.d}</p></div>
   </div>
-  <div class="report-scores">
-    <div class="rscore rg"><div class="rscore-num">${state.good}</div><div class="rscore-lbl">${u.wise}</div></div>
-    <div class="rscore rw"><div class="rscore-num">${state.warn}</div><div class="rscore-lbl">${u.cautious}</div></div>
-    <div class="rscore rb"><div class="rscore-num">${state.bad}</div><div class="rscore-lbl">${u.missed}</div></div>
+  <div class="rpt-scores">
+    <div class="rs rg"><div class="rs-num">${gs.good}</div><div class="rs-lbl">${wL}</div></div>
+    <div class="rs rw"><div class="rs-num">${gs.warn}</div><div class="rs-lbl">${cL}</div></div>
+    <div class="rs rb"><div class="rs-num">${gs.bad}</div><div class="rs-lbl">${mL}</div></div>
   </div>`;
 
-  // Each scenario
-  state.log.forEach((entry, i) => {
-    const sc = scenarios[entry.scenarioIdx];
-    const ch = sc.choices[entry.choiceIdx];
-    const typeClass = 'r-'+entry.type;
-    const resultLabel = u.resultLabels[entry.type];
-    const weekLabel = isTa ? sc.weekTa : sc.week;
-    const titleLabel = isTa ? sc.titleTa : sc.title;
-    const choiceText = isTa ? ch.textTa : ch.text;
-    const analysisText = isTa ? ch.analysisTa : ch.analysis;
-    const taAnalysisBlock = isBoth ? `<div class="r-analysis-ta">${ch.analysisTa}</div>` : '';
-    const taChoiceBlock = isBoth ? `<div style="font-family:'Noto Serif Tamil',serif;font-size:11px;color:#6b5a8a;margin-top:4px;line-height:1.7;">${ch.textTa}</div>` : '';
-
-    body.innerHTML += `<div class="r-scene ${typeClass}">
+  gs.log.forEach(entry=>{
+    const enSc=enData.scenarios[entry.si], taSc=taData.scenarios[entry.si];
+    const enCh=enSc.choices[entry.ci], taCh=taSc.choices[entry.ci];
+    const sc=isTa?taSc:enSc, ch=isTa?taCh:enCh;
+    const taCblock=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:11px;color:#6b5a8a;margin-top:4px;line-height:1.8;">${taCh.text}</div>`:'';
+    const taAblock=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:12px;color:#6b5a8a;line-height:1.8;margin-top:6px;">${taCh.analysis}</div>`:'';
+    html+=`<div class="r-scene r-${entry.type}">
       <div class="r-scene-head">
-        <span class="r-week-pill">${weekLabel}</span>
-        <span class="r-topic-pill">${isTa?sc.topicLabelTa:sc.topicLabel}</span>
-        <span class="r-result-badge">${ch.icon} ${resultLabel}</span>
+        <span class="r-wpill">${sc.week}</span>
+        <span class="r-tpill">${sc.topicLabel}</span>
+        <span class="r-badge">${enCh.icon} ${RL[entry.type]}</span>
       </div>
-      <div class="r-scene-title">${isTa?'📍 '+sc.titleTa:'📍 '+sc.title}</div>
-      <div class="r-choice-label">${u.yourChoice}</div>
-      <div class="r-choice-text">${choiceText}${taChoiceBlock}</div>
-      <div class="r-choice-label">${u.analysis}</div>
-      <div class="r-analysis">${analysisText}</div>
-      ${taAnalysisBlock}
-      <div class="r-verse">✦ ${ch.ref}</div>
+      <div class="r-stitle">📍 ${sc.title}</div>
+      <div class="r-clabel">${ycL}</div>
+      <div class="r-ctext">${ch.text}${taCblock}</div>
+      <div class="r-clabel">${anL}</div>
+      <div class="r-analysis">${ch.analysis}</div>${taAblock}
+      <div class="r-verse">✦ ${enCh.ref}</div>
     </div>`;
   });
 
-  // Strengths + Growth
-  const goodEntries = state.log.filter(e=>e.type==='good');
-  const badEntries  = state.log.filter(e=>e.type==='bad' ||e.type==='warn');
+  const goodE=gs.log.filter(e=>e.type==='good');
+  const badE=gs.log.filter(e=>e.type!=='good');
+  const strL=isTa?'💪 நன்றாக வழிநடத்திய இடங்கள்':'💪 Where You Led Well';
+  const grL=isTa?'🌱 வளர வேண்டிய இடங்கள்':'🌱 Where You Can Grow';
 
-  if(goodEntries.length>0){
-    const pts = goodEntries.map(e=>{
-      const sc=scenarios[e.scenarioIdx], ch=sc.choices[e.choiceIdx];
-      const en_pt = `<strong>${sc.title}:</strong> ${ch.analysis}`;
-      const ta_pt = isBoth ? `<div class="r-point-ta">${ch.analysisTa}</div>` : '';
-      return `<div class="r-point">${isTa?`<strong>${sc.titleTa}:</strong> ${ch.analysisTa}`:en_pt}</div>${ta_pt}`;
+  if(goodE.length){
+    const pts=goodE.map(e=>{
+      const enSc=enData.scenarios[e.si],taSc=taData.scenarios[e.si];
+      const enCh=enSc.choices[e.ci],taCh=taSc.choices[e.ci];
+      const sc=isTa?taSc:enSc,ch=isTa?taCh:enCh;
+      const ta2=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:12px;color:#6b5a8a;line-height:1.8;margin-left:20px;margin-bottom:8px;">${taCh.analysis}</div>`:'';
+      return `<div class="r-point"><strong>${sc.title}:</strong> ${ch.analysis}</div>${ta2}`;
     }).join('');
-    body.innerHTML+=`<div class="r-section"><h3>${u.strengths}</h3>${pts}</div>`;
+    html+=`<div class="r-section"><h3>${strL}</h3>${pts}</div>`;
+  }
+  if(badE.length){
+    const pts=badE.map(e=>{
+      const enSc=enData.scenarios[e.si],taSc=taData.scenarios[e.si];
+      const enCh=enSc.choices[e.ci],taCh=taSc.choices[e.ci];
+      const sc=isTa?taSc:enSc,ch=isTa?taCh:enCh;
+      const ta2=isBoth?`<div style="font-family:'Noto Serif Tamil',serif;font-size:12px;color:#6b5a8a;line-height:1.8;margin-left:20px;margin-bottom:8px;">${taCh.analysis}</div>`:'';
+      return `<div class="r-point"><strong>${sc.title}:</strong> ${ch.analysis}</div>${ta2}`;
+    }).join('');
+    html+=`<div class="r-section"><h3>${grL}</h3>${pts}</div>`;
   }
 
-  if(badEntries.length>0){
-    const pts = badEntries.map(e=>{
-      const sc=scenarios[e.scenarioIdx], ch=sc.choices[e.choiceIdx];
-      const enPt = `<strong>${sc.title}:</strong> ${ch.analysis}`;
-      const ta_pt = isBoth ? `<div class="r-point-ta">${ch.analysisTa}</div>` : '';
-      return `<div class="r-point">${isTa?`<strong>${sc.titleTa}:</strong> ${ch.analysisTa}`:enPt}</div>${ta_pt}`;
-    }).join('');
-    body.innerHTML+=`<div class="r-section"><h3>${u.growth}</h3>${pts}</div>`;
-  }
+  const cls={en:"Be shepherds of God's flock that is under your care, watching over them — not because you must, but because you are willing. — 1 Peter 5:2",
+             ta:"உங்கள் கவலைக்கு ஒப்புவிக்கப்பட்டுள்ள கடவுளின் மந்தையை மேய்த்துக்கொண்டிருங்கள் — கட்டாயத்தினால் அல்ல, மனப்பூர்வமாக. — 1 பேதுரு 5:2"};
+  const clsTxt=isBoth?cls.en+`<div style="font-family:'Noto Serif Tamil',serif;font-size:13px;margin-top:8px;color:#6b5a8a;line-height:1.8;">${cls.ta}</div>`:isTa?cls.ta:cls.en;
+  const closL=isTa?'✦ நிறைவு வேதவாக்கு':'✦ Closing Scripture';
+  const printL=isTa?'🖨️ அச்சிடு':'🖨️ Print / Save PDF';
+  const againL=isTa?'↩ மீண்டும் விளையாடு':'↩ Play Again';
 
-  // Closing scripture
-  const closings = {
-    en:"Be shepherds of God's flock that is under your care, watching over them — not because you must, but because you are willing. — 1 Peter 5:2",
-    ta:"உங்கள் கவலைக்கு ஒப்புவிக்கப்பட்டுள்ள கடவுளின் மந்தையை மேய்த்துக்கொண்டிருங்கள் — கட்டாயத்தினால் அல்ல, மனப்பூர்வமாக. — 1 பேதுரு 5:2"
-  };
-  body.innerHTML+=`<div class="r-section" style="background:rgba(232,168,56,0.05);border-color:rgba(232,168,56,0.2);">
-    <h3 style="color:var(--accent);">✦ ${isTa?'நிறைவு வேதவாக்கு':'Closing Scripture'}</h3>
-    <div style="font-style:italic;font-size:14px;color:var(--muted);line-height:1.7;">
-      ${isBoth ? closings.en + '<div style="font-family:\'Noto Serif Tamil\',serif;font-size:13px;margin-top:8px;color:#6b5a8a;">'+closings.ta+'</div>' : (isTa?closings.ta:closings.en)}
-    </div>
+  html+=`<div class="r-section" style="background:rgba(232,168,56,0.05);border-color:rgba(232,168,56,0.2);">
+    <h3>${closL}</h3>
+    <div style="font-style:italic;font-size:14px;color:var(--muted);line-height:1.75;">${clsTxt}</div>
+  </div>
+  <div class="rpt-actions">
+    <button class="ra-btn ra-primary" onclick="window.print()">${printL}</button>
+    <button class="ra-btn ra-ghost" onclick="restartGame()">${againL}</button>
   </div>`;
 
-  // Actions
-  body.innerHTML+=`<div class="report-actions">
-    <button class="rpt-btn rpt-btn-primary" onclick="window.print()">${u.printBtn}</button>
-    <button class="rpt-btn rpt-btn-ghost" onclick="restartGame()">${u.restartBtn}</button>
-  </div>`;
-
+  document.getElementById('rpt-body').innerHTML=html;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function backToEnd(){
-  document.getElementById('screen-report').classList.remove('active');
-  document.getElementById('screen-end').classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+function backToEnd(){showScreen('screen-end');window.scrollTo({top:0,behavior:'smooth'});}
+function restartGame(){showScreen('screen-title');window.scrollTo({top:0,behavior:'smooth'});}
+
+// ── ADMIN ─────────────────────────────────────────────
+function showAdmin(){
+  showScreen('screen-admin');
+  renderAdm('en'); renderAdm('ta');
+}
+function exitAdmin(){window.location.hash='';showScreen('screen-title');}
+function switchAdmLang(l){
+  admLang=l;
+  document.getElementById('atab-en').classList.toggle('active',l==='en');
+  document.getElementById('atab-ta').classList.toggle('active',l==='ta');
+  document.getElementById('adm-en').style.display=l==='en'?'block':'none';
+  document.getElementById('adm-ta').style.display=l==='ta'?'block':'none';
 }
 
-// ─────────────────────────────────────────────
-//  FLOW
-// ─────────────────────────────────────────────
-function startGame(){
-  document.getElementById('screen-title').classList.remove('active');
-  document.getElementById('screen-game').classList.add('active');
-  renderScenario();
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function renderAdm(l){
+  const data=l==='en'?enData:taData;
+  const container=document.getElementById('adm-'+l);
+  container.innerHTML='';
+  data.scenarios.forEach((sc,si)=>{
+    const card=document.createElement('div');
+    card.className='adm-sc';
+    let choicesHtml='';
+    sc.choices.forEach((ch,ci)=>{
+      choicesHtml+=`<div class="adm-choice">
+        <div class="adm-ch">
+          <span class="adm-cletter">${ch.letter}</span>
+          <span class="adm-ctype ${ch.type}">${ch.type}</span>
+          <span class="adm-recid">ID: ${ch.choiceId}</span>
+        </div>
+        <div class="adm-f"><label>Choice Text</label><textarea data-p="${l}.${si}.choices.${ci}.text">${esc(ch.text)}</textarea></div>
+        <div class="adm-f"><label>Outcome Title</label><input data-p="${l}.${si}.choices.${ci}.outcomeTitle" value="${esc(ch.outcomeTitle)}"></div>
+        <div class="adm-f"><label>Outcome Text</label><textarea data-p="${l}.${si}.choices.${ci}.outcomeText">${esc(ch.outcomeText)}</textarea></div>
+        <div class="adm-f"><label>Analysis</label><textarea data-p="${l}.${si}.choices.${ci}.analysis">${esc(ch.analysis)}</textarea></div>
+        ${l==='en'?`
+        <div class="adm-f"><label>Scripture Ref</label><input data-p="${l}.${si}.choices.${ci}.ref" value="${esc(ch.ref)}"></div>
+        <div class="adm-choices-lbl" style="font-size:11px;margin-top:4px;">Effects on stats</div>
+        <div class="adm-fx">
+          <div class="adm-fxi"><label>Unity</label><input type="number" data-p="${l}.${si}.choices.${ci}.effects.unity" value="${ch.effects.unity}"></div>
+          <div class="adm-fxi"><label>Shepherd</label><input type="number" data-p="${l}.${si}.choices.${ci}.effects.shepherd" value="${ch.effects.shepherd}"></div>
+          <div class="adm-fxi"><label>Depth</label><input type="number" data-p="${l}.${si}.choices.${ci}.effects.depth" value="${ch.effects.depth}"></div>
+        </div>`:''}
+      </div>`;
+    });
+    card.innerHTML=`
+      <div class="adm-sc-head" onclick="toggleAdm('afields-${l}-${si}','atog-${l}-${si}')">
+        <div class="adm-sc-hl"><span class="adm-wbadge">${sc.week}</span><span class="adm-sc-title">${sc.title}</span></div>
+        <span class="adm-toggle" id="atog-${l}-${si}">▾</span>
+      </div>
+      <div class="adm-fields" id="afields-${l}-${si}">
+        <div class="adm-recid-info">Scenario ID: ${sc.scenarioId}</div>
+        <div class="adm-f"><label>Week Label</label><input data-p="${l}.${si}.week" value="${esc(sc.week)}"></div>
+        <div class="adm-f"><label>Title</label><input data-p="${l}.${si}.title" value="${esc(sc.title)}"></div>
+        <div class="adm-f"><label>Character Name</label><input data-p="${l}.${si}.name" value="${esc(sc.name)}"></div>
+        <div class="adm-f"><label>Character Role</label><input data-p="${l}.${si}.role" value="${esc(sc.role)}"></div>
+        <div class="adm-f"><label>Topic Label</label><input data-p="${l}.${si}.topicLabel" value="${esc(sc.topicLabel)}"></div>
+        <div class="adm-f"><label>Scenario Text</label><textarea data-p="${l}.${si}.scenarioText">${esc(sc.scenarioText)}</textarea></div>
+        <div class="adm-f"><label>Context / Hint</label><textarea data-p="${l}.${si}.context">${esc(sc.context)}</textarea></div>
+        <div class="adm-choices-lbl">✦ Choices</div>
+        ${choicesHtml}
+      </div>`;
+    container.appendChild(card);
+  });
 }
 
-function restartGame(){
-  state={current:0,unity:70,shepherd:75,depth:50,good:0,warn:0,bad:0,answered:false,log:[]};
-  document.getElementById('screen-end').classList.remove('active');
-  document.getElementById('screen-report').classList.remove('active');
-  document.getElementById('screen-title').classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+function toggleAdm(fId,tId){
+  const f=document.getElementById(fId),t=document.getElementById(tId);
+  const o=f.classList.contains('open');
+  f.classList.toggle('open',!o); t.classList.toggle('open',!o);
 }
+
+function saveAdmin(){
+  ['en','ta'].forEach(l=>{
+    const data=l==='en'?enData:taData;
+    document.getElementById('adm-'+l).querySelectorAll('[data-p]').forEach(el=>{
+      const parts=el.dataset.p.split('.').slice(1); // remove lang prefix
+      let obj=data.scenarios;
+      for(let i=0;i<parts.length-1;i++){
+        const k=isNaN(parts[i])?parts[i]:parseInt(parts[i]);
+        obj=obj[k];
+      }
+      const lk=isNaN(parts[parts.length-1])?parts[parts.length-1]:parseInt(parts[parts.length-1]);
+      const v=el.value;
+      obj[lk]=el.type==='number'?parseInt(v)||0:v;
+    });
+    localStorage.setItem(l==='en'?SK_EN:SK_TA,JSON.stringify(data));
+  });
+  const t=document.getElementById('toast');
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function resetAdmin(){
+  if(!confirm('Reset all edits to default JSON data?'))return;
+  localStorage.removeItem(SK_EN); localStorage.removeItem(SK_TA);
+  location.reload();
+}
+
+// hash routing
+window.addEventListener('hashchange',()=>{
+  if(window.location.hash==='#admin')showAdmin();
+  else if(document.getElementById('screen-admin').classList.contains('active'))showScreen('screen-title');
+});
+
+loadData();
 </script>
 </body>
 </html>
